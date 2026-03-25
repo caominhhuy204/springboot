@@ -8,6 +8,7 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        
       </Routes>
     </>
   )
