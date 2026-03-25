@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Variables ── */
+:root {
+  --primary: #667eea;
+  --primary-light: #818cf8;
+  --primary-dark: #3730a3;
+}
+
+/* ── Animated Gradient Background ── */
+.login-page.animated-gradient {
+  background: linear-gradient(135deg, #5b9acd 0%, #81d0e6 50%, #28ea9c 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Color-change text animation ── */
+.animate-color-change {
+  background: linear-gradient(to right, #66c2ea, #90e8e6, #93f9fb, #66eae8);
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: colorFlow 4s linear infinite;
+}
+
+@keyframes colorFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* ── Curved top overlay (right panel) ── */
+.login-curved-top {
+  width: 200%;
+  height: 180%;
+  background: white;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+
+/* ── Ant Design Checkbox override ── */
+.login-page .ant-checkbox-inner {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.login-page .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #667eea !important;
+  border-color: #667eea !important;
+}
+
+.login-page .ant-checkbox-wrapper {
+  color: white;
+}
+
+/* ── Text primary ── */
+.text-primary {
+  color: var(--primary) !important;
+}
