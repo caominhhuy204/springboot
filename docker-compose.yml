@@ -1,19 +1,47 @@
 services:
   mysql:
-    image: mysql:8.0.43
-    container_name: spring-boot
+    image: mysql:8.4
+    container_name: nhom04-mysql
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: englishdb
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin123
-      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: mydb
     ports:
-      - "3306:3306"
+      - "${MYSQL_HOST_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend/english
+    container_name: nhom04-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: mydb
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: nhom04-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   mysql_data:
