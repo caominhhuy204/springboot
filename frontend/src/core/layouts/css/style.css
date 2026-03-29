@@ -4,9 +4,14 @@
 
 /* ── Variables ── */
 :root {
-  --primary: #667eea;
-  --primary-light: #818cf8;
-  --primary-dark: #3730a3;
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --border-soft: #e2e8f0;
+  --text-main: #0f172a;
+  --text-sub: #475569;
 }
 
 /* ── Animated Gradient Background ── */
@@ -63,4 +68,129 @@
 /* ── Text primary ── */
 .text-primary {
   color: var(--primary) !important;
+}
+
+/* -- App shell layout -- */
+.app-shell-bg {
+  background:
+    radial-gradient(1200px 600px at -5% -10%, #e0f2fe 0%, rgba(224, 242, 254, 0) 60%),
+    radial-gradient(900px 500px at 105% 0%, #ecfeff 0%, rgba(236, 254, 255, 0) 60%),
+    #f8fafc;
+}
+
+.portal-sider {
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.06);
+}
+
+.portal-logo {
+  letter-spacing: 0.01em;
+}
+
+.portal-menu .ant-menu-item {
+  border-radius: 12px;
+  margin-inline: 4px;
+  margin-block: 6px;
+  height: 42px;
+  line-height: 42px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.portal-menu .ant-menu-item-selected {
+  background: linear-gradient(120deg, #dbeafe 0%, #ccfbf1 100%) !important;
+  color: #0f172a !important;
+}
+
+.portal-menu .ant-menu-item-selected .ant-menu-title-content a,
+.portal-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: #0f172a !important;
+}
+
+.portal-menu .ant-menu-item:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.portal-menu .ant-menu-title-content a {
+  color: inherit;
+}
+
+.portal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(8px);
+}
+
+.portal-avatar {
+  background: linear-gradient(120deg, #2563eb 0%, #0f766e 100%) !important;
+}
+
+.portal-icon-btn {
+  border-color: #cbd5e1;
+}
+
+.portal-logout-btn {
+  border-color: #cbd5e1;
+}
+
+.portal-content-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* -- Dashboard -- */
+.dashboard-hero .ant-card-body {
+  background: linear-gradient(120deg, #1e3a8a 0%, #2563eb 55%, #0f766e 100%);
+  border-radius: 16px;
+  color: #f8fafc;
+}
+
+.dashboard-surface {
+  border: 1px solid var(--border-soft);
+}
+
+.dashboard-stat-card {
+  border: 1px solid var(--border-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-stat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  color: #1d4ed8;
+  margin-top: 2px;
+}
+
+.dashboard-quick {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.dashboard-action-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 12px;
+  color: #1e3a8a;
+  background: #f8fbff;
+}
+
+.dashboard-action-tile:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
 }

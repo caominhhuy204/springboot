@@ -7,6 +7,7 @@ import AppShell from './components/AppShell'
 import ProfilePage from './modules/profile/pages/ProfilePage'
 import AdminUsersPage from './modules/admin/pages/AdminUsersPage'
 import AdminUserDetailPage from './modules/admin/pages/AdminUserDetailPage'
+import DashboardPage from './modules/dashboard/pages/DashboardPage'
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
         <Route path='/register' element={<RegisterPage/>}/>
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
-            <Route path="/" element={<ProfilePage />} />
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={["ADMIN"]} />}>

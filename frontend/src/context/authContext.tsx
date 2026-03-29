@@ -56,11 +56,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    await api.post("/api/auth/logout");
-    setAccessTokenState(null);
-    setAccessToken(null);
-    setUser(null);
-    window.location.href = "/login";
+    try {
+      await api.post("/api/auth/logout");
+    } finally {
+      setAccessTokenState(null);
+      setAccessToken(null);
+      setUser(null);
+      window.location.href = "/login";
+    }
   };
 
   useEffect(() => {
