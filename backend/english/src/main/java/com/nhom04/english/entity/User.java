@@ -31,4 +31,13 @@ public class User {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Role role;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_otp")
+    private String resetOtp;
+
+    @Column(name = "reset_expire")
+    private Long resetExpire;
 }

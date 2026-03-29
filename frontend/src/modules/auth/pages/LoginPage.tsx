@@ -12,9 +12,13 @@ function LoginPage() {
   const onFinish = async (values: any) => {
     try {
       const { email, password } = values;
-      await login(email, password);
-      message.success("Đăng nhập thành công!");
-      navigate("/");
+      const result = await login(email, password);
+      if (result.success) {
+        message.success("Đăng nhập thành công!");
+        navigate("/");
+      }else{
+        message.error(result.message || "Đăng nhập thất bại!");
+      }
     } catch (error) {
       console.error(error);
       message.error("Có lỗi xảy ra, vui lòng thử lại!");

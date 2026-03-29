@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import type { RuleObject } from "antd/es/form";
 import handleRegister from "@/api/auth/handleRegister";
-// Import từ file schema bạn đã tách
 import {
   registerSchema,
   type RegisterFormValues,
@@ -20,20 +19,16 @@ const title = "LearnEng";
 const RegisterPage: React.FC = () => {
   const [form] = Form.useForm<RegisterFormValues>();
 
-  // ── Validator Bridge (Zod -> Ant Design) ──
   const zodValidator = {
     validator: async (rule: RuleObject, _value: any) => {
-      // Ép kiểu rule để lấy được tên field đang validate
       const field = (rule as any).field as keyof RegisterFormValues;
       const allValues = form.getFieldsValue();
 
       try {
-        // Validate toàn bộ object để check được cả các phần liên quan (như confirmPassword)
         await registerSchema.parseAsync(allValues);
         return Promise.resolve();
       } catch (err) {
         if (err instanceof z.ZodError) {
-          // Tìm lỗi cụ thể của field hiện tại
           const fieldError = err.issues.find(
             (issue) => issue.path[0] === field,
           );
@@ -58,11 +53,19 @@ const RegisterPage: React.FC = () => {
         values.confirmPassword,
       );
 
-      message.success({
-        content: "Tạo tài khoản thành công!",
-        key: "reg",
-        duration: 2,
-      });
+      if (res.success) {
+        message.success({
+          content: "Tạo tài khoản thành công!",
+          key: "reg",
+          duration: 2,
+        });
+        window.location.href = "/login";
+      } else {
+        message.error({
+          content: res.message || "Đăng ký thất bại!",
+          key: "reg",
+        });
+      }
     } catch (error) {
       message.error({
         content: "Có lỗi xảy ra!",
