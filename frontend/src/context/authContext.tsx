@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { setAccessToken, getAccessToken } from "../context/tokenStore";
 import api from "@/utils/axiosClient";
+import type { UserProfile } from "@/types/user";
 
 interface AuthContextType {
-  user: any;
+  user: UserProfile | null;
   accessToken: string | null;
   login: (email: string, password: string) => Promise<any>;
   logout: () => void;
-  getProfile: () => Promise<any>;
+  getProfile: (token?: string) => Promise<UserProfile>;
+  refreshProfile: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -15,7 +17,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessTokenState] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const login = async (email: string, password: string) => {
@@ -32,8 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setAccessToken(token);
 
     if (token) {
-      const profile = await getProfile();
-      console.log(profile);
+      const profile = await getProfile(token);
       setUser(profile);
     }
 
@@ -41,12 +42,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getProfile = async (token?: string) => {
-    const res = await api.get("/api/auth/me", {
+    const res = await api.get<UserProfile>("/api/profile/me", {
       headers: {
         Authorization: `Bearer ${token || getAccessToken()}`,
       },
     });
     return res.data;
+  };
+
+  const refreshProfile = async () => {
+    const profile = await getProfile();
+    setUser(profile);
   };
 
   const logout = async () => {
@@ -83,7 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, login, logout, getProfile, isLoading }}
+      value={{ user, accessToken, login, logout, getProfile, refreshProfile, isLoading }}
     >
       {children}
     </AuthContext.Provider>

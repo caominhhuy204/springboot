@@ -9,8 +9,8 @@ import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import com.nhom04.english.dto.LoginRequest;
 import com.nhom04.english.dto.RegisterRequest;
-import com.nhom04.english.entity.User;
 import com.nhom04.english.service.AuthService;
+import com.nhom04.english.service.UserProfileService;
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +22,11 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserProfileService userProfileService;
 
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
-        System.out.println("jjjjjjjjjjjjjjjjjjjjjjjjjjjjj" + request);
-        return authService.register(request);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(userProfileService.toResponse(authService.register(request)));
     }
 
     @PostMapping("/login")
@@ -88,8 +88,6 @@ public class AuthController {
 
         String email = authentication.getName();
 
-        User user = authService.getUserByEmail(email);
-        
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userProfileService.getByEmail(email));
     }
 }
