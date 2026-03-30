@@ -6,7 +6,7 @@ import { useUser } from "@/context/authContext";
 const title = "LearnEng";
 
 function LoginPage() {
-  const { login } = useUser();
+  const { login, getProfile } = useUser();
   const navigate = useNavigate();
 
   const onFinish = async (values: any) => {
@@ -14,7 +14,15 @@ function LoginPage() {
       const { email, password } = values;
       await login(email, password);
       message.success("Đăng nhập thành công!");
-      navigate("/");
+      
+      const profile = await getProfile();
+      const roleName = String(profile?.role?.name || profile?.role || '');
+      
+      if (roleName.includes('TEACHER')) {
+        navigate("/teacher/assignments");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.error(error);
       message.error("Có lỗi xảy ra, vui lòng thử lại!");
