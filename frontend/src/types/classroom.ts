@@ -27,7 +27,10 @@ export interface Classroom {
 }
 
 export interface ClassroomPayload {
-  code: string;
   name: string;
   description?: string;
+}
+
+export interface JoinClassroomPayload {
+  code: string;
 }

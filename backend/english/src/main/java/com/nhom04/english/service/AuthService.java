@@ -89,6 +89,14 @@ public class AuthService {
     }
 
     public String extractTokenFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String headerToken = authHeader.substring(7).trim();
+            if (!headerToken.isEmpty()) {
+                return headerToken;
+            }
+        }
+
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
                 if ("token".equals(cookie.getName())) {
