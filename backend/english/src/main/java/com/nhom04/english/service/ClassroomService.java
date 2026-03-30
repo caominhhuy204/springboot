@@ -206,14 +206,6 @@ public class ClassroomService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
     }
 
-    private User validateAndGetTeacher(Long teacherId) {
-        User teacher = getUserById(teacherId);
-        if (teacher.getRole().getName() != RoleName.TEACHER) {
-            throw new RuntimeException("Assigned user is not a TEACHER");
-        }
-        return teacher;
-    }
-
     private Set<User> validateAndGetStudents(List<Long> studentIds) {
         Set<User> students = new HashSet<>();
         for (Long studentId : studentIds) {

@@ -10,6 +10,8 @@ import AdminUserDetailPage from './modules/admin/pages/AdminUserDetailPage'
 import DashboardPage from './modules/dashboard/pages/DashboardPage'
 import ClassroomsPage from './modules/classroom/pages/ClassroomsPage'
 import ClassroomDetailPage from './modules/classroom/pages/ClassroomDetailPage'
+import ExamTakingPage from './modules/exam/pages/ExamTakingPage'
+import ExamHistoryPage from './modules/exam/pages/ExamHistoryPage'
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/classrooms" element={<ClassroomsPage />} />
             <Route path="/classrooms/:id" element={<ClassroomDetailPage />} />
+            <Route path="/exams/:id/take" element={<ExamTakingPage />} />
+            <Route path="/exams/history" element={<ExamHistoryPage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={["ADMIN"]} />}>
