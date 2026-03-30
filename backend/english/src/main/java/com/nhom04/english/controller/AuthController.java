@@ -57,7 +57,14 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("success", false));
         }
 
-        String newAccessToken = authService.refreshToken(token);
+        final String newAccessToken;
+        try {
+            newAccessToken = authService.refreshToken(token);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "Invalid token"));
+        }
 
         return ResponseEntity.ok(Map.of(
                 "success", true,

@@ -8,6 +8,8 @@ import ProfilePage from './modules/profile/pages/ProfilePage'
 import AdminUsersPage from './modules/admin/pages/AdminUsersPage'
 import AdminUserDetailPage from './modules/admin/pages/AdminUserDetailPage'
 import DashboardPage from './modules/dashboard/pages/DashboardPage'
+import ClassroomsPage from './modules/classroom/pages/ClassroomsPage'
+import ClassroomDetailPage from './modules/classroom/pages/ClassroomDetailPage'
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/classrooms" element={<ClassroomsPage />} />
+            <Route path="/classrooms/:id" element={<ClassroomDetailPage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={["ADMIN"]} />}>

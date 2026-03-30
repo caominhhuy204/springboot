@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const token = res.data.token;
 
-    console.log(token);
     if (!token) {
       throw new Error("Login failed");
     }
@@ -68,8 +67,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      const currentToken = getAccessToken();
+
       try {
-        const res = await api.post("/api/auth/refresh-token");
+        const res = await api.post(
+          "/api/auth/refresh-token",
+          {},
+          currentToken
+            ? {
+                headers: {
+                  Authorization: `Bearer ${currentToken}`,
+                },
+              }
+            : undefined,
+        );
 
         const newToken = res.data.token;
 
@@ -80,8 +91,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const profile = await getProfile(newToken);
           setUser(profile);
         }
-      } catch (err) {
-        setUser(null);
+      } catch {
+        if (currentToken) {
+          try {
+            const profile = await getProfile(currentToken);
+            setAccessTokenState(currentToken);
+            setUser(profile);
+          } catch {
+            setAccessToken(null);
+            setAccessTokenState(null);
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       } finally {
         setIsLoading(false);
       }

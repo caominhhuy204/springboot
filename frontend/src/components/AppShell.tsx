@@ -1,5 +1,6 @@
 import {
   BellOutlined,
+  BookOutlined,
   CalendarOutlined,
   DashboardOutlined,
   LogoutOutlined,
@@ -20,6 +21,7 @@ function AppShell() {
 
   const items = [
     { key: "/", icon: <DashboardOutlined />, label: <Link to="/">Trang chu</Link> },
+    { key: "/classrooms", icon: <BookOutlined />, label: <Link to="/classrooms">Lop hoc</Link> },
     { key: "/profile", icon: <UserOutlined />, label: <Link to="/profile">Ho so ca nhan</Link> },
     ...(user?.role === "ADMIN"
       ? [{ key: "/admin/users", icon: <TeamOutlined />, label: <Link to="/admin/users">Quan ly tai khoan</Link> }]
@@ -28,6 +30,8 @@ function AppShell() {
 
   const selectedKey = location.pathname.startsWith("/admin/users")
     ? "/admin/users"
+    : location.pathname.startsWith("/classrooms")
+      ? "/classrooms"
     : location.pathname.startsWith("/profile")
       ? "/profile"
       : "/";

@@ -1,6 +1,7 @@
 package com.nhom04.english.entity;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -65,4 +66,16 @@ public class User {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Role role;
+
+    @OneToMany(mappedBy = "teacher")
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Classroom> teachingClassrooms;
+
+    @ManyToMany(mappedBy = "students")
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Classroom> joinedClassrooms;
 }

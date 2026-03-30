@@ -194,3 +194,70 @@
   border-color: #93c5fd;
   background: #eff6ff;
 }
+
+/* -- Classrooms cards -- */
+.classroom-card {
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.classroom-card__head {
+  min-height: 120px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  color: #f8fafc;
+}
+
+.classroom-card__icon {
+  font-size: 20px;
+  opacity: 0.85;
+}
+
+.classroom-card__code {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #dbeafe;
+  margin-bottom: 6px;
+}
+
+.classroom-card__body {
+  padding: 16px;
+  background: #ffffff;
+}
+
+.classroom-card__actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.classroom-tone-1 .classroom-card__head {
+  background: linear-gradient(135deg, #0f172a 0%, #1e40af 60%, #0ea5e9 100%);
+}
+
+.classroom-tone-2 .classroom-card__head {
+  background: linear-gradient(135deg, #14532d 0%, #059669 60%, #10b981 100%);
+}
+
+.classroom-tone-3 .classroom-card__head {
+  background: linear-gradient(135deg, #581c87 0%, #9333ea 55%, #ec4899 100%);
+}
+
+.classroom-tone-4 .classroom-card__head {
+  background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 55%, #fb923c 100%);
+}
+
+.classroom-tone-5 .classroom-card__head {
+  background: linear-gradient(135deg, #312e81 0%, #4f46e5 55%, #22d3ee 100%);
+}
+
+.classroom-tone-6 .classroom-card__head {
+  background: linear-gradient(135deg, #365314 0%, #65a30d 60%, #facc15 100%);
+}
