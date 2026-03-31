@@ -12,6 +12,9 @@ import ClassroomsPage from './modules/classroom/pages/ClassroomsPage'
 import ClassroomDetailPage from './modules/classroom/pages/ClassroomDetailPage'
 import ExamTakingPage from './modules/exam/pages/ExamTakingPage'
 import ExamHistoryPage from './modules/exam/pages/ExamHistoryPage'
+import PronunciationHubPage from './modules/pronunciation/pages/PronunciationHubPage'
+import PronunciationExercisesPage from './modules/pronunciation/pages/PronunciationExercisesPage'
+import PronunciationExerciseDetailPage from './modules/pronunciation/pages/PronunciationExerciseDetailPage'
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
             <Route path="/classrooms/:id" element={<ClassroomDetailPage />} />
             <Route path="/exams/:id/take" element={<ExamTakingPage />} />
             <Route path="/exams/history" element={<ExamHistoryPage />} />
+            <Route path="/pronunciation" element={<PronunciationHubPage />} />
+            <Route path="/classrooms/:classroomId/pronunciation" element={<PronunciationExercisesPage />} />
+            <Route path="/classrooms/:classroomId/pronunciation/:exerciseId" element={<PronunciationExerciseDetailPage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={["ADMIN"]} />}>

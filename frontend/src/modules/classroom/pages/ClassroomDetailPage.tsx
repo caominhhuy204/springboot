@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Avatar,
+  Button,
   Card,
   Col,
   Descriptions,
@@ -85,6 +86,11 @@ function ClassroomDetailPage() {
               <Descriptions.Item label="So sinh vien">{students.length}</Descriptions.Item>
               <Descriptions.Item label="Mo ta">{classroom?.description || "-"}</Descriptions.Item>
             </Descriptions>
+            <Link to={`/classrooms/${classroomId}/pronunciation`}>
+              <Button type="primary" className="mt-4">
+                Mo module phat am
+              </Button>
+            </Link>
           </Card>
         </Col>
 

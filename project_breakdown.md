@@ -57,7 +57,7 @@
 -   Tạo bài phát âm\
 -   Upload hoặc ghi âm audio\
 -   Lưu file audio\
--   Speech-to-text (Whisper)\
+  -   Speech-to-text (Whisper)\
 -   So sánh với câu gốc\
 -   Trả điểm cơ bản\
 -   Lưu lịch sử luyện phát âm

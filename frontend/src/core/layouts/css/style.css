@@ -261,3 +261,128 @@
 .classroom-tone-6 .classroom-card__head {
   background: linear-gradient(135deg, #365314 0%, #65a30d 60%, #facc15 100%);
 }
+
+/* -- Pronunciation (TV6) -- */
+.pronunciation-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  background:
+    radial-gradient(circle at top right, rgba(103, 232, 249, 0.22), transparent 36%),
+    linear-gradient(135deg, #082f49 0%, #155e75 48%, #0f766e 100%);
+  color: #ecfeff;
+  box-shadow: 0 18px 44px rgba(8, 47, 73, 0.18);
+}
+
+.pronunciation-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -60px -80px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  filter: blur(2px);
+}
+
+.pronunciation-hero .ant-card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.pronunciation-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cffafe;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pronunciation-panel {
+  border: 1px solid #dbeafe;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.pronunciation-metric {
+  border-radius: 16px;
+  border: 1px solid #dbeafe;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.pronunciation-exercise-card {
+  overflow: hidden;
+  border: 1px solid #c7d2fe;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.pronunciation-exercise-card__banner {
+  padding: 18px 18px 14px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 30%),
+    linear-gradient(135deg, #1d4ed8 0%, #0891b2 55%, #14b8a6 100%);
+  color: #eff6ff;
+}
+
+.pronunciation-exercise-card__body {
+  padding: 18px;
+  background: #ffffff;
+}
+
+.pronunciation-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #155e75;
+  font-weight: 600;
+}
+
+.pronunciation-recorder {
+  border: 1px dashed #7dd3fc;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(186, 230, 253, 0.35), transparent 35%),
+    #f8fdff;
+}
+
+.pronunciation-recording-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.pronunciation-recording-live::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.12);
+}
+
+.pronunciation-submission-item {
+  padding: 18px 0;
+}
+
+.pronunciation-submission-item + .pronunciation-submission-item {
+  border-top: 1px solid #e2e8f0;
+}
+
+.pronunciation-table audio,
+.pronunciation-submission-item audio {
+  width: 100%;
+}
