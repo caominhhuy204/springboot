@@ -16,11 +16,11 @@ public class Question {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exam_id", nullable = false)
+    @JoinColumn(name = "assignment_id", nullable = false)
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Exam exam;
+    private Assignment assignment;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
