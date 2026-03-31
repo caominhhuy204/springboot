@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import LoginPage from './modules/auth/pages/LoginPage'
 import RegisterPage from './modules/auth/pages/RegisterPage'
@@ -15,6 +15,7 @@ import ExamHistoryPage from './modules/exam/pages/ExamHistoryPage'
 import PronunciationHubPage from './modules/pronunciation/pages/PronunciationHubPage'
 import PronunciationExercisesPage from './modules/pronunciation/pages/PronunciationExercisesPage'
 import PronunciationExerciseDetailPage from './modules/pronunciation/pages/PronunciationExerciseDetailPage'
+import AssignmentPage from './modules/teacher/pages/AssignmentPage'
 
 function App() {
   return (
@@ -36,12 +37,18 @@ function App() {
             <Route path="/classrooms/:classroomId/pronunciation/:exerciseId" element={<PronunciationExerciseDetailPage />} />
           </Route>
         </Route>
+        <Route element={<ProtectedRoute roles={["TEACHER", "ADMIN"]} />}>
+          <Route element={<AppShell />}>
+            <Route path="/teacher/assignments" element={<AssignmentPage />} />
+          </Route>
+        </Route>
         <Route element={<ProtectedRoute roles={["ADMIN"]} />}>
           <Route element={<AppShell />}>
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
           </Route>
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   )

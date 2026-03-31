@@ -8,10 +8,9 @@ import "./core/layouts/css/style.css";
 import { AuthProvider } from "./context/authContext";
 const theme = {
   token: {
-    colorPrimary: "#2563eb",
-    borderRadius: 12,
-    colorBgContainer: "#ffffff",
-    colorTextBase: "#0f172a",
+    colorPrimary: "#667eea",
+    borderRadius: 9999,
+    colorBgContainer: "transparent",
   },
 };
 
