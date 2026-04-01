@@ -8,7 +8,6 @@ import {
   SoundOutlined,
   TeamOutlined,
   UserOutlined,
-  PlaySquareOutlined,
   HistoryOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
@@ -26,7 +25,6 @@ function AppShell() {
   const items = [
     { key: "/", icon: <DashboardOutlined />, label: <Link to="/">Trang chu</Link> },
     { key: "/classrooms", icon: <BookOutlined />, label: <Link to="/classrooms">Lop hoc</Link> },
-    { key: "/exams/1/take", icon: <PlaySquareOutlined />, label: <Link to="/exams/1/take">Thi thu (De 1)</Link> },
     { key: "/exams/history", icon: <HistoryOutlined />, label: <Link to="/exams/history">Lich su bai lam</Link> },
     { key: "/pronunciation", icon: <SoundOutlined />, label: <Link to="/pronunciation">Phat am</Link> },
     { key: "/profile", icon: <UserOutlined />, label: <Link to="/profile">Ho so ca nhan</Link> },
@@ -46,8 +44,6 @@ function AppShell() {
       ? "/classrooms"
     : location.pathname.startsWith("/exams/history")
       ? "/exams/history"
-    : location.pathname.startsWith("/exams")
-      ? "/exams/1/take"
     : location.pathname.startsWith("/teacher/assignments")
       ? "/teacher/assignments"
     : location.pathname.startsWith("/profile")
