@@ -8,8 +8,10 @@ import ProfilePage from './modules/profile/pages/ProfilePage'
 import AdminUsersPage from './modules/admin/pages/AdminUsersPage'
 import AdminUserDetailPage from './modules/admin/pages/AdminUserDetailPage'
 import DashboardPage from './modules/dashboard/pages/DashboardPage'
+import ProgressPage from './modules/dashboard/pages/ProgressPage'
 import ClassroomsPage from './modules/classroom/pages/ClassroomsPage'
 import ClassroomDetailPage from './modules/classroom/pages/ClassroomDetailPage'
+import ClassroomProgressPage from './modules/classroom/pages/ClassroomProgressPage'
 import ExamTakingPage from './modules/exam/pages/ExamTakingPage'
 import ExamHistoryPage from './modules/exam/pages/ExamHistoryPage'
 import PronunciationHubPage from './modules/pronunciation/pages/PronunciationHubPage'
@@ -27,9 +29,11 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/progress" element={<ProgressPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/classrooms" element={<ClassroomsPage />} />
             <Route path="/classrooms/:id" element={<ClassroomDetailPage />} />
+            <Route path="/classrooms/:id/progress" element={<ClassroomProgressPage />} />
             <Route path="/exams/:id/take" element={<ExamTakingPage />} />
             <Route path="/exams/history" element={<ExamHistoryPage />} />
             <Route path="/pronunciation" element={<PronunciationHubPage />} />

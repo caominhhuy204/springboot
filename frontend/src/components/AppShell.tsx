@@ -10,6 +10,7 @@ import {
   UserOutlined,
   HistoryOutlined,
   FileTextOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import { Avatar, Badge, Button, Input, Layout, Menu, Space, Typography } from "antd";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -26,6 +27,7 @@ function AppShell() {
     { key: "/", icon: <DashboardOutlined />, label: <Link to="/">Trang chu</Link> },
     { key: "/classrooms", icon: <BookOutlined />, label: <Link to="/classrooms">Lop hoc</Link> },
     { key: "/exams/history", icon: <HistoryOutlined />, label: <Link to="/exams/history">Lich su bai lam</Link> },
+    { key: "/progress", icon: <LineChartOutlined />, label: <Link to="/progress">Tien do hoc tap</Link> },
     { key: "/pronunciation", icon: <SoundOutlined />, label: <Link to="/pronunciation">Phat am</Link> },
     { key: "/profile", icon: <UserOutlined />, label: <Link to="/profile">Ho so ca nhan</Link> },
     ...(user?.role === "ADMIN" || user?.role === "TEACHER"
