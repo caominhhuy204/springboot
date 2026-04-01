@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, Modal, Popconfirm, Row, Skeleton, Space, Statistic, Tag, Typography, message } from "antd";
+import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Skeleton, Space, Statistic, Tag, Typography, message } from "antd";
 import { AudioOutlined, DeleteOutlined, EditOutlined, PlusOutlined, RiseOutlined, SoundOutlined, TeamOutlined } from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import api from "@/utils/axiosClient";
@@ -16,6 +16,7 @@ function PronunciationExercisesPage() {
   const numericClassroomId = Number(classroomId);
 
   const [classroom, setClassroom] = useState<Classroom | null>(null);
+  const [availableClassrooms, setAvailableClassrooms] = useState<Classroom[]>([]);
   const [exercises, setExercises] = useState<PronunciationExercise[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -28,13 +29,15 @@ function PronunciationExercisesPage() {
     setLoading(true);
     setError("");
     try {
-      const [classroomRes, exercisesRes] = await Promise.all([
+      const [classroomRes, exercisesRes, allClassroomsRes] = await Promise.all([
         api.get<Classroom>(`/api/classrooms/${numericClassroomId}`),
         api.get<PronunciationExercise[]>(`/api/pronunciation/classrooms/${numericClassroomId}/exercises`),
+        api.get<Classroom[]>("/api/classrooms"),
       ]);
 
       setClassroom(classroomRes.data);
       setExercises(exercisesRes.data);
+      setAvailableClassrooms(allClassroomsRes.data);
     } catch {
       setError("Khong the tai du lieu bai phat am cua lop hoc nay.");
     } finally {
@@ -80,6 +83,7 @@ function PronunciationExercisesPage() {
       focusSkill: "",
       difficultyLevel: 1,
       maxAttempts: 3,
+      classroomIds: [numericClassroomId],
     });
     setModalOpen(true);
   };
@@ -93,6 +97,7 @@ function PronunciationExercisesPage() {
       focusSkill: exercise.focusSkill ?? "",
       difficultyLevel: exercise.difficultyLevel,
       maxAttempts: exercise.maxAttempts,
+      classroomIds: exercise.classroomIds,
     });
     setModalOpen(true);
   };
@@ -162,7 +167,7 @@ function PronunciationExercisesPage() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <Text type="secondary">
           {canManage
-            ? "Ban co the tao moi, sua va xoa bai luyen phat am trong lop nay."
+            ? "Ban co the tao moi, sua, xoa va giao bai phat am nay cho mot hoac nhieu lop."
             : "Chon bai luyen ben duoi de mo khu vuc nop audio va xem lich su cham bai."}
         </Text>
         {canManage && (
@@ -193,6 +198,7 @@ function PronunciationExercisesPage() {
                       <Tag color="blue">Do kho {exercise.difficultyLevel}/5</Tag>
                       <Tag color="gold">Toi da {exercise.maxAttempts} lan nop</Tag>
                       <Tag color="green">{exercise.submissionCount} bai nop</Tag>
+                      <Tag color="purple">{exercise.classroomNames.length} lop duoc giao</Tag>
                     </Space>
                     <Title level={4} className="!mb-0 !text-slate-50">
                       {exercise.title}
@@ -207,6 +213,15 @@ function PronunciationExercisesPage() {
                         <SoundOutlined />
                         Ky nang trong tam: {exercise.focusSkill}
                       </span>
+                    )}
+                    {exercise.classroomNames.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {exercise.classroomNames.map((name) => (
+                          <Tag key={`${exercise.id}-${name}`} color={name === classroom?.name ? "cyan" : "default"}>
+                            {name}
+                          </Tag>
+                        ))}
+                      </div>
                     )}
                     {exercise.description && <Paragraph className="!mb-0 !text-slate-600">{exercise.description}</Paragraph>}
                     <Space wrap>
@@ -254,6 +269,17 @@ function PronunciationExercisesPage() {
         okText={editingExercise ? "Luu thay doi" : "Tao bai"}
       >
         <Form layout="vertical" form={form} initialValues={{ difficultyLevel: 1, maxAttempts: 3 }}>
+          <Form.Item
+            name="classroomIds"
+            label="Giao cho lop"
+            rules={[{ required: true, message: "Chon it nhat mot lop hoc" }]}
+          >
+            <Select
+              mode="multiple"
+              options={availableClassrooms.map((item) => ({ label: item.name, value: item.id }))}
+              placeholder="Chon mot hoac nhieu lop"
+            />
+          </Form.Item>
           <Form.Item name="title" label="Tieu de" rules={[{ required: true, message: "Nhap tieu de" }]}>
             <Input />
           </Form.Item>

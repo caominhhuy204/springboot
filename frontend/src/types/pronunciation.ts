@@ -25,6 +25,8 @@ export interface PronunciationExercise {
   id: number;
   classroomId: number;
   classroomName: string;
+  classroomIds: number[];
+  classroomNames: string[];
   title: string;
   referenceText: string;
   description?: string | null;
@@ -44,6 +46,7 @@ export interface PronunciationExercisePayload {
   focusSkill?: string;
   difficultyLevel?: number;
   maxAttempts?: number;
+  classroomIds?: number[];
 }
 
 export interface PronunciationReviewPayload {
