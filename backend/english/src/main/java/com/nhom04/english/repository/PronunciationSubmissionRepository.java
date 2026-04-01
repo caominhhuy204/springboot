@@ -11,5 +11,7 @@ public interface PronunciationSubmissionRepository extends JpaRepository<Pronunc
 
     List<PronunciationSubmission> findByExerciseIdAndStudentIdOrderBySubmittedAtDescIdDesc(Long exerciseId, Long studentId);
 
+    List<PronunciationSubmission> findByStudentAndReviewStatusOrderBySubmittedAtDesc(com.nhom04.english.entity.User student, com.nhom04.english.entity.PronunciationReviewStatus reviewStatus);
+
     long countByExerciseIdAndStudentId(Long exerciseId, Long studentId);
 }

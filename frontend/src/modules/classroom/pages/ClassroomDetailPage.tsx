@@ -14,6 +14,7 @@ import {
 } from "antd";
 import { Link, useParams } from "react-router-dom";
 import api from "@/utils/axiosClient";
+import { useUser } from "@/context/authContext";
 import type { Classroom, ClassroomStudent } from "@/types/classroom";
 
 const { Text } = Typography;
@@ -21,6 +22,7 @@ const { Text } = Typography;
 function ClassroomDetailPage() {
   const { id } = useParams();
 
+  const { user } = useUser();
   const [classroom, setClassroom] = useState<Classroom | null>(null);
   const [students, setStudents] = useState<ClassroomStudent[]>([]);
   const [loading, setLoading] = useState(false);
@@ -86,11 +88,13 @@ function ClassroomDetailPage() {
               <Descriptions.Item label="So sinh vien">{students.length}</Descriptions.Item>
               <Descriptions.Item label="Mo ta">{classroom?.description || "-"}</Descriptions.Item>
             </Descriptions>
-            <Link to={`/classrooms/${classroomId}/pronunciation`}>
-              <Button type="primary" className="mt-4">
-                Mo module phat am
-              </Button>
-            </Link>
+            {(user?.role === "TEACHER" || user?.role === "ADMIN") && (
+              <Link to={`/classrooms/${classroomId}/progress`}>
+                <Button className="mt-4 ml-2">
+                  Xem bao cao tien do
+                </Button>
+              </Link>
+            )}
           </Card>
         </Col>
 
