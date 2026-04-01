@@ -70,7 +70,7 @@ function ClassroomsPage() {
         message.success("Cap nhat lop hoc thanh cong");
       } else {
         await api.post("/api/classrooms", values);
-        message.success("Tao lop hoc thanh cong. Ma lop da duoc tao tu dong");
+        message.success("Tao lop hoc thanh cong.");
       }
 
       setModalOpen(false);
@@ -124,9 +124,7 @@ function ClassroomsPage() {
               Lop hoc cua ban
             </Title>
             <Text type="secondary">
-              {canJoin
-                ? "Ban chi thay cac lop da tham gia. Dung ma lop de vao lop moi."
-                : "Tao va quan ly lop hoc theo kieu Google Classroom."}
+              
             </Text>
           </div>
           <Space wrap>
@@ -156,7 +154,7 @@ function ClassroomsPage() {
           <Empty
             description={
               canJoin
-                ? "Ban chua tham gia lop hoc nao. Hay nhap ma lop de bat dau."
+                ? "Ban chua tham gia lop hoc nao. "
                 : "Chua co lop hoc nao. Hay tao lop hoc dau tien."
             }
           />

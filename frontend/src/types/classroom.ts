@@ -14,6 +14,15 @@ export interface ClassroomTeacher {
   teacherCode?: string | null;
 }
 
+export interface ClassroomMember {
+  id: number;
+  username: string;
+  fullname: string;
+  email: string;
+  code?: string | null;
+  pending?: boolean;
+}
+
 export interface Classroom {
   id: number;
   code: string;
@@ -24,6 +33,7 @@ export interface Classroom {
   teacherEmail?: string | null;
   studentCount: number;
   students?: ClassroomStudent[] | null;
+  teachers?: ClassroomTeacher[] | null;
 }
 
 export interface ClassroomPayload {
