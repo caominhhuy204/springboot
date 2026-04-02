@@ -5,6 +5,8 @@ import RegisterPage from './modules/auth/pages/RegisterPage'
 import ForgotPasswordPage from './modules/auth/pages/ForgotPasswordPage'
 import ResetPasswordPage from './modules/auth/pages/ResetPasswordPage'
 import VerifyOTPPage from './modules/auth/pages/VerifyOTPPage'
+import OAuth2SuccessPage from './modules/auth/pages/OAuth2SuccessPage'
+
 function App() {
   return (
     <>
@@ -15,6 +17,7 @@ function App() {
         <Route path='/forgot-password' element={<ForgotPasswordPage/>}/>
         <Route path='/reset-password' element={<ResetPasswordPage/>}/>
         <Route path='/verify-otp' element={<VerifyOTPPage/>}/>
+        <Route path='/oauth2-success' element={<OAuth2SuccessPage />} />
       </Routes>
     </>
   )
