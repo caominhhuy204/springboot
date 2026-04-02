@@ -1,5 +1,10 @@
 package com.nhom04.english.entity;
 
+import java.time.LocalDate;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +23,7 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
@@ -25,6 +31,35 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Column(length = 255)
+    private String address;
+
+    @Column(length = 255)
+    private String avatarUrl;
+
+    @Column(length = 1000)
+    private String bio;
+
+    private LocalDate dateOfBirth;
+
+    @Column(length = 20)
+    private String gender;
+
+    @Column(length = 100)
+    private String department;
+
+    @Column(length = 100)
+    private String specialization;
+
+    @Column(length = 50, unique = true)
+    private String studentCode;
+
+    @Column(length = 50, unique = true)
+    private String teacherCode;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

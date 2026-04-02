@@ -15,6 +15,8 @@ import com.nhom04.english.dto.RegisterRequest;
 import com.nhom04.english.dto.ResetPasswordRequest;
 import com.nhom04.english.entity.User;
 import com.nhom04.english.service.AuthService;
+import com.nhom04.english.repository.UserRepository;
+import com.nhom04.english.entity.User;
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
@@ -66,7 +69,14 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("success", false));
         }
 
-        String newAccessToken = authService.refreshToken(token);
+        final String newAccessToken;
+        try {
+            newAccessToken = authService.refreshToken(token);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "Invalid token"));
+        }
 
         return ResponseEntity.ok(Map.of(
                 "success", true,

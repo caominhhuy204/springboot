@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import LoginPage from './modules/auth/pages/LoginPage'
 import RegisterPage from './modules/auth/pages/RegisterPage'

@@ -45,7 +45,7 @@ const RegisterPage: React.FC = () => {
     try {
       message.loading({ content: "Đang xử lý...", key: "reg" });
 
-      const res = await handleRegister(
+      await handleRegister(
         values.username,
         values.fullname,
         values.email,

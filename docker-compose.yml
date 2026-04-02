@@ -1,19 +1,55 @@
 services:
   mysql:
-    image: mysql:8.0.43
-    container_name: spring-boot
+    image: mysql:8.4
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: englishdb
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin123
-      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: mydb
     ports:
-      - "3306:3306"
+      - "${MYSQL_HOST_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend/english
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: mydb
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+      APP_AUDIO_UPLOAD_DIR: /app/uploads/audio
+    ports:
+      - "${BACKEND_HOST_PORT:-8080}:8080"
+    volumes:
+      - uploads_audio:/app/uploads/audio
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:80"
 
 volumes:
   mysql_data:
+  uploads_audio:

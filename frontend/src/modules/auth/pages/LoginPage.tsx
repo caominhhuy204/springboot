@@ -1,6 +1,7 @@
 import { UserIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { Checkbox, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useUser } from "@/context/authContext";
 
 const title = "LearnEng";
@@ -8,6 +9,17 @@ const title = "LearnEng";
 function LoginPage() {
   const { login, accessToken } = useUser();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      const roleName = String(user?.role?.name || user?.role || '');
+      if (roleName.includes('TEACHER') || roleName.includes('ADMIN')) {
+        navigate("/teacher/assignments");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [user, navigate]);
 
   const onFinish = async (values: any) => {
     try {
