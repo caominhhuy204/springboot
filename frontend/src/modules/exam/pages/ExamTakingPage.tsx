@@ -13,7 +13,11 @@ const ExamTakingPage: React.FC = () => {
 
   useEffect(() => {
     const fetchExam = async () => {
-      if (!id) return;
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
       const data = await examApi.getExamDetail(id);
       if (data) {
         setExam(data);
@@ -22,7 +26,8 @@ const ExamTakingPage: React.FC = () => {
       }
       setLoading(false);
     };
-    fetchExam();
+
+    void fetchExam();
   }, [id]);
 
   const handleAnswerChange = (questionId: number, value: string) => {
@@ -30,29 +35,35 @@ const ExamTakingPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!exam || !id) return;
+    if (!exam || !id) {
+      return;
+    }
 
     Modal.confirm({
-      title: "Nộp bài",
-      content: "Bạn có chắc chắn muốn nộp bài thi này không?",
-      okText: "Có, Nộp ngay",
-      cancelText: "Hủy",
+      title: "Nop bai",
+      content: "Ban co chac chan muon nop bai thi nay khong?",
+      okText: "Co, nop ngay",
+      cancelText: "Huy",
       onOk: async () => {
         setSubmitting(true);
-        const payload: AnswerPayload[] = Object.keys(answers).map((qId) => ({
-          questionId: parseInt(qId),
-          studentAnswer: answers[parseInt(qId)],
+        const payload: AnswerPayload[] = Object.keys(answers).map((questionId) => ({
+          questionId: Number(questionId),
+          studentAnswer: answers[Number(questionId)],
         }));
 
         try {
           const res = await examApi.submitExam(id, payload);
           if (res) {
             Modal.success({
-              title: "Nộp bài thành công!",
+              title: "Nop bai thanh cong",
               content: (
                 <div>
-                  <p>Số câu đúng: {res.correctAnswersCount} / {res.totalQuestionsCount}</p>
-                  <p>Tổng điểm: <strong>{res.totalScore}</strong></p>
+                  <p>
+                    So cau dung: {res.correctAnswersCount} / {res.totalQuestionsCount}
+                  </p>
+                  <p>
+                    Tong diem: <strong>{res.totalScore}</strong>
+                  </p>
                 </div>
               ),
               onOk: () => {
@@ -60,8 +71,8 @@ const ExamTakingPage: React.FC = () => {
               },
             });
           }
-        } catch (error) {
-          message.error("Đã xảy ra lỗi khi nộp bài");
+        } catch {
+          message.error("Da xay ra loi khi nop bai");
         } finally {
           setSubmitting(false);
         }
@@ -70,11 +81,15 @@ const ExamTakingPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center mt-20"><Spin size="large" /></div>;
+    return (
+      <div className="flex justify-center mt-20">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   if (!exam) {
-    return <div className="text-center mt-20 text-red-500">Đề thi không tồn tại!</div>;
+    return <div className="text-center mt-20 text-red-500">De thi khong ton tai</div>;
   }
 
   return (
@@ -82,34 +97,36 @@ const ExamTakingPage: React.FC = () => {
       <div className="bg-white shadow rounded p-6 mb-6">
         <h1 className="text-2xl font-bold mb-2">{exam.title}</h1>
         <p className="text-gray-600 mb-4">{exam.description}</p>
-        <div className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold">
-          Thời gian: {exam.timeLimitMinutes} phút
-        </div>
+        {typeof exam.timeLimitMinutes === "number" && (
+          <div className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold">
+            Thoi gian: {exam.timeLimitMinutes} phut
+          </div>
+        )}
       </div>
 
       <div className="space-y-6">
-        {exam.questions.map((q, index) => (
-          <Card key={q.id} title={`Câu ${index + 1} (${q.points} điểm)`}>
-            <p className="text-lg mb-4 whitespace-pre-wrap">{q.content}</p>
-            {q.type === "MULTIPLE_CHOICE" ? (
+        {exam.questions.map((question, index) => (
+          <Card key={question.id} title={`Cau ${index + 1} (${question.points} diem)`}>
+            <p className="text-lg mb-4 whitespace-pre-wrap">{question.content}</p>
+            {question.type === "MULTIPLE_CHOICE" ? (
               <Radio.Group
-                onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                value={answers[q.id]}
+                onChange={(event) => handleAnswerChange(question.id, event.target.value)}
+                value={answers[question.id]}
                 className="flex flex-col space-y-3"
               >
-                {q.options &&
-                  JSON.parse(q.options).map((opt: string, i: number) => (
-                    <Radio key={i} value={opt} className="text-base">
-                      {opt}
+                {Array.isArray(question.options) &&
+                  question.options.map((option: string, optionIndex: number) => (
+                    <Radio key={optionIndex} value={option} className="text-base">
+                      {option}
                     </Radio>
                   ))}
               </Radio.Group>
             ) : (
               <Input
-                placeholder="Nhập câu trả lời của bạn..."
+                placeholder="Nhap cau tra loi cua ban..."
                 size="large"
-                value={answers[q.id] || ""}
-                onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                value={answers[question.id] || ""}
+                onChange={(event) => handleAnswerChange(question.id, event.target.value)}
               />
             )}
           </Card>
@@ -120,11 +137,11 @@ const ExamTakingPage: React.FC = () => {
         <Button
           type="primary"
           size="large"
-          onClick={handleSubmit}
+          onClick={() => void handleSubmit()}
           loading={submitting}
           className="w-full md:w-1/3 bg-blue-600 hover:bg-blue-700"
         >
-          Nộp Bài Thi
+          Nop bai thi
         </Button>
       </div>
     </div>

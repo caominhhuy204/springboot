@@ -10,8 +10,9 @@ export interface QuestionDto {
   id?: number;
   content: string;
   type: 'MULTIPLE_CHOICE' | 'FILL_IN_BLANK';
-  options: string[];
+  options: string[] | string;
   correctAnswer: string;
+  points?: number;
 }
 
 export interface ClassroomDto {
@@ -83,14 +84,18 @@ export const addQuestionToAssignment = async (assignmentId: number, payload: Que
   return parseOptions(data);
 };
 
-export const updateQuestion = async (questionId: number, payload: QuestionDto): Promise<QuestionDto> => {
+export const updateQuestion = async (
+  assignmentId: number,
+  questionId: number,
+  payload: QuestionDto,
+): Promise<QuestionDto> => {
   const submitPayload = { ...payload, options: JSON.stringify(payload.options || []) };
-  const { data } = await api.put(`/api/questions/${questionId}`, submitPayload);
+  const { data } = await api.put(`/api/assignments/${assignmentId}/questions/${questionId}`, submitPayload);
   return parseOptions(data);
 };
 
-export const deleteQuestion = async (questionId: number): Promise<void> => {
-  await api.delete(`/api/questions/${questionId}`);
+export const deleteQuestion = async (assignmentId: number, questionId: number): Promise<void> => {
+  await api.delete(`/api/assignments/${assignmentId}/questions/${questionId}`);
 };
 
 export const getClassrooms = async (): Promise<ClassroomDto[]> => {

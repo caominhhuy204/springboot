@@ -1,13 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { setAccessToken, getAccessToken } from "../context/tokenStore";
 import api from "@/utils/axiosClient";
+import type { UserProfile, UserProfileApiResponse, UserRole } from "@/types/user";
 
 interface AuthContextType {
-  user: any;
+  user: UserProfile | null;
   accessToken: string | null;
   login: (email: string, password: string) => Promise<any>;
-  logout: () => void;
-  getProfile: (token?: string) => Promise<any>;
+  logout: () => Promise<void>;
+  getProfile: (token?: string) => Promise<UserProfile>;
   isLoading: boolean;
   handleOAuth2Login: (token: string) => Promise<void>;
 }
@@ -16,8 +17,18 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessTokenState] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const normalizeUser = (payload: UserProfileApiResponse): UserProfile => {
+    const roleValue = typeof payload.role === "string" ? payload.role : payload.role?.name;
+    const role = (roleValue || "STUDENT") as UserRole;
+
+    return {
+      ...payload,
+      role,
+    };
+  };
 
   const login = async (email: string, password: string) => {
     const res = await api.post("/api/auth/login", { email, password });
@@ -34,7 +45,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (token) {
       const profile = await getProfile();
-      console.log(profile);
       setUser(profile);
     }
 
@@ -42,12 +52,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getProfile = async (token?: string) => {
-    const res = await api.get("/api/auth/me", {
+    const res = await api.get<UserProfileApiResponse>("/api/auth/me", {
       headers: {
         Authorization: `Bearer ${token || getAccessToken()}`,
       },
     });
-    return res.data;
+    return normalizeUser(res.data);
   };
 
   const logout = async () => {

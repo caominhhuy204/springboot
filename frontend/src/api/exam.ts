@@ -4,7 +4,7 @@ export interface Question {
   id: number;
   content: string;
   type: "MULTIPLE_CHOICE" | "FILL_IN_BLANK";
-  options?: string;
+  options?: string[] | string;
   points: number;
 }
 
@@ -12,7 +12,7 @@ export interface ExamDetail {
   id: number;
   title: string;
   description: string;
-  timeLimitMinutes: number;
+  timeLimitMinutes?: number;
   questions: Question[];
 }
 
@@ -36,13 +36,29 @@ export interface HistoryResponse {
   examTitle: string;
   totalScore: number;
   submitTime: string;
+  teacherFeedback?: string | null;
 }
+
+const parseQuestionOptions = (question: Question): Question => {
+  if (typeof question.options === "string") {
+    try {
+      return { ...question, options: JSON.parse(question.options) };
+    } catch {
+      return { ...question, options: [] };
+    }
+  }
+
+  return { ...question, options: question.options ?? [] };
+};
 
 export const examApi = {
   getExamDetail: async (examId: string | number): Promise<ExamDetail | null> => {
     try {
       const res = await api.get(`/api/exams/${examId}`);
-      return res.data;
+      return {
+        ...res.data,
+        questions: Array.isArray(res.data?.questions) ? res.data.questions.map(parseQuestionOptions) : [],
+      };
     } catch (error) {
       console.error("Error fetching exam:", error);
       return null;

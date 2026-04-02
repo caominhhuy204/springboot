@@ -7,12 +7,12 @@ import { useUser } from "@/context/authContext";
 const title = "LearnEng";
 
 function LoginPage() {
-  const { login, accessToken } = useUser();
+  const { login, user } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      const roleName = String(user?.role?.name || user?.role || '');
+      const roleName = String(user?.role || '');
       if (roleName.includes('TEACHER') || roleName.includes('ADMIN')) {
         navigate("/teacher/assignments");
       } else {

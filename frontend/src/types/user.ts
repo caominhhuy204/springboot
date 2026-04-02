@@ -1,5 +1,10 @@
 export type UserRole = "ADMIN" | "TEACHER" | "STUDENT";
 
+export interface UserRolePayload {
+  id?: number;
+  name?: UserRole | string;
+}
+
 export interface UserProfile {
   id: number;
   username: string;
@@ -16,6 +21,10 @@ export interface UserProfile {
   specialization?: string | null;
   studentCode?: string | null;
   teacherCode?: string | null;
+}
+
+export interface UserProfileApiResponse extends Omit<UserProfile, "role"> {
+  role: UserRole | UserRolePayload;
 }
 
 export interface UpdateProfilePayload {

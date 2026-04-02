@@ -5,8 +5,10 @@ import com.nhom04.english.dto.*;
 import com.nhom04.english.entity.*;
 import com.nhom04.english.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,12 +28,42 @@ public class ExamService {
     private final ClassroomRepository classroomRepository;
     private final ObjectMapper objectMapper;
 
+    @Transactional(readOnly = true)
+    public AssignmentDto getExamDetail(Long assignmentId, String currentUserEmail) {
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new RuntimeException("Assignment not found"));
+        User currentUser = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ensureCanAccessAssignment(assignment, currentUser);
+
+        AssignmentDto response = new AssignmentDto();
+        response.setId(assignment.getId());
+        response.setTitle(assignment.getTitle());
+        response.setDescription(assignment.getDescription());
+        response.setClassrooms(assignment.getClassrooms().stream()
+                .map(classroom -> new ClassroomDto(classroom.getId(), classroom.getName()))
+                .collect(Collectors.toList()));
+        response.setQuestions(assignment.getQuestions().stream().map(question -> {
+            QuestionDto dto = new QuestionDto();
+            dto.setId(question.getId());
+            dto.setContent(question.getContent());
+            dto.setType(question.getType());
+            dto.setOptions(question.getOptions());
+            dto.setCorrectAnswer(question.getCorrectAnswer());
+            dto.setPoints(question.getPoints());
+            return dto;
+        }).collect(Collectors.toList()));
+        return response;
+    }
+
     @Transactional
     public SubmitResponse submitExam(Long assignmentId, String studentEmail, List<AnswerPayload> answers) {
         Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Assignment not found"));
         User student = userRepository.findByEmail(studentEmail)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+        ensureCanAccessAssignment(assignment, student);
 
         int totalCorrect = 0;
         int totalScore = 0;
@@ -80,8 +112,20 @@ public class ExamService {
         return q.getCorrectAnswer().trim().equalsIgnoreCase(studentAnswer.trim());
     }
 
-    public List<HistoryResponse> getHistory(String studentEmail) {
-        User student = userRepository.findByEmail(studentEmail)
+    public List<HistoryResponse> getHistory(String requesterEmail, String targetStudentEmail) {
+        User requester = userRepository.findByEmail(requesterEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String resolvedEmail = requesterEmail;
+        if (targetStudentEmail != null && !targetStudentEmail.isBlank()) {
+            if (requester.getRole().getName() != Role.RoleName.ADMIN
+                    && requester.getRole().getName() != Role.RoleName.TEACHER) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No permission to view this history");
+            }
+            resolvedEmail = targetStudentEmail;
+        }
+
+        User student = userRepository.findByEmail(resolvedEmail)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
         return submissionRepository.findByStudentOrderBySubmittedAtDesc(student).stream()
                 .map(s -> {
@@ -152,5 +196,20 @@ public class ExamService {
             stats.put("studentEmail", student.getEmail());
             return stats;
         }).collect(Collectors.toList());
+    }
+
+    private void ensureCanAccessAssignment(Assignment assignment, User user) {
+        Role.RoleName roleName = user.getRole().getName();
+        if (roleName == Role.RoleName.ADMIN || roleName == Role.RoleName.TEACHER) {
+            return;
+        }
+
+        boolean assignedToStudent = assignment.getClassrooms().stream()
+                .anyMatch(classroom -> classroom.getStudents().stream()
+                        .anyMatch(student -> Objects.equals(student.getId(), user.getId())));
+
+        if (!assignedToStudent) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No permission to access this assignment");
+        }
     }
 }

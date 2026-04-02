@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Select, Button, Space } from 'antd';
+import { Modal, Form, Input, Select, Button } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { QuestionDto } from '../../../api/assignmentApi';
 

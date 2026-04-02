@@ -5,9 +5,9 @@ import api from "@/utils/axiosClient";
 import type { UpdateProfilePayload } from "@/types/user";
 
 type ChangePasswordFormValues = {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
-  confirmPassword: string;
+  confirmNewPassword: string;
 };
 
 function ProfilePage() {
@@ -15,6 +15,7 @@ function ProfilePage() {
   const [form] = Form.useForm<UpdateProfilePayload>();
   const [passwordForm] = Form.useForm<ChangePasswordFormValues>();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -48,9 +49,18 @@ function ProfilePage() {
     setIsPasswordModalOpen(false);
   };
 
-  const onPasswordFinish = () => {
-    message.success("Mo phong doi mat khau thanh cong");
-    closePasswordModal();
+  const onPasswordFinish = async (values: ChangePasswordFormValues) => {
+    setIsChangingPassword(true);
+    try {
+      const response = await api.post("/api/auth/change-password", values);
+      message.success(response.data?.message || "Doi mat khau thanh cong");
+      closePasswordModal();
+      passwordForm.resetFields();
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || "Khong the doi mat khau");
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -136,13 +146,14 @@ function ProfilePage() {
         open={isPasswordModalOpen}
         onCancel={closePasswordModal}
         onOk={() => passwordForm.submit()}
+        confirmLoading={isChangingPassword}
         okText="Xac nhan"
         cancelText="Huy"
         destroyOnHidden
       >
         <Form layout="vertical" form={passwordForm} onFinish={onPasswordFinish}>
           <Form.Item
-            name="currentPassword"
+            name="oldPassword"
             label="Mat khau cu"
             rules={[{ required: true, message: "Nhap mat khau cu" }]}
           >
@@ -156,7 +167,7 @@ function ProfilePage() {
             <Input.Password placeholder="Nhap mat khau moi" />
           </Form.Item>
           <Form.Item
-            name="confirmPassword"
+            name="confirmNewPassword"
             label="Xac nhan mat khau"
             dependencies={["newPassword"]}
             rules={[

@@ -13,10 +13,10 @@ import com.nhom04.english.dto.ChangePasswordRequest;
 import com.nhom04.english.dto.LoginRequest;
 import com.nhom04.english.dto.RegisterRequest;
 import com.nhom04.english.dto.ResetPasswordRequest;
+import com.nhom04.english.dto.UserResponse;
 import com.nhom04.english.entity.User;
 import com.nhom04.english.service.AuthService;
 import com.nhom04.english.repository.UserRepository;
-import com.nhom04.english.entity.User;
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ public class AuthController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", user);
+        response.put("data", toUserResponse(user));
 
         return ResponseEntity.ok(response);
     }
@@ -109,7 +109,7 @@ public class AuthController {
 
         User user = authService.getUserByEmail(email);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(toUserResponse(user));
     }
 
     @PostMapping("/forgot-password")
@@ -175,5 +175,25 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Có lỗi hệ thống xảy ra!"));
         }
+    }
+
+    private UserResponse toUserResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setFullname(user.getFullname());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole().getName().name());
+        response.setPhone(user.getPhone());
+        response.setAddress(user.getAddress());
+        response.setAvatarUrl(user.getAvatarUrl());
+        response.setBio(user.getBio());
+        response.setDateOfBirth(user.getDateOfBirth());
+        response.setGender(user.getGender());
+        response.setDepartment(user.getDepartment());
+        response.setSpecialization(user.getSpecialization());
+        response.setStudentCode(user.getStudentCode());
+        response.setTeacherCode(user.getTeacherCode());
+        return response;
     }
 }

@@ -17,14 +17,21 @@ public class ExamController {
 
     private final ExamService examService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AssignmentDto> getExamDetail(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(examService.getExamDetail(id, authentication.getName()));
+    }
+
     @PostMapping("/{id}/submit")
     public ResponseEntity<SubmitResponse> submitExam(@PathVariable Long id, @RequestBody SubmitRequest request, Authentication authentication) {
         return ResponseEntity.ok(examService.submitExam(id, authentication.getName(), request.getAnswers()));
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<HistoryResponse>> getHistory(Authentication authentication) {
-        return ResponseEntity.ok(examService.getHistory(authentication.getName()));
+    public ResponseEntity<List<HistoryResponse>> getHistory(
+            Authentication authentication,
+            @RequestParam(required = false) String email) {
+        return ResponseEntity.ok(examService.getHistory(authentication.getName(), email));
     }
 
     @GetMapping("/progress")

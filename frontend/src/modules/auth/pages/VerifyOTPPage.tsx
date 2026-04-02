@@ -4,8 +4,6 @@ import { ShieldCheckIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useNavigate, useSearchParams } from 'react-router-dom'; // Thêm useSearchParams
 import handleVerifyOTP from '@/api/auth/handleVerifyOTP';
 
-const title = "LearnEng";
-
 const VerifyOTPPage = () => {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
   const [loading, setLoading] = useState(false);
