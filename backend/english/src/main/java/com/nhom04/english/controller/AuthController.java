@@ -4,11 +4,16 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
+
+import com.nhom04.english.dto.ChangePasswordRequest;
 import com.nhom04.english.dto.LoginRequest;
 import com.nhom04.english.dto.RegisterRequest;
+import com.nhom04.english.dto.ResetPasswordRequest;
+import com.nhom04.english.entity.User;
 import com.nhom04.english.service.AuthService;
 import com.nhom04.english.repository.UserRepository;
 import com.nhom04.english.entity.User;
@@ -26,8 +31,14 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
+        User user = authService.register(request);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", user);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -96,28 +107,73 @@ public class AuthController {
 
         String email = authentication.getName();
 
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
+        User user = authService.getUserByEmail(email);
+
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email is required"));
         }
 
-        com.nhom04.english.dto.UserResponse response = new com.nhom04.english.dto.UserResponse();
-        response.setId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setFullname(user.getFullname());
-        response.setEmail(user.getEmail());
-        response.setRole(user.getRole().getName().name());
-        response.setPhone(user.getPhone());
-        response.setAddress(user.getAddress());
-        response.setAvatarUrl(user.getAvatarUrl());
-        response.setBio(user.getBio());
-        response.setDateOfBirth(user.getDateOfBirth());
-        response.setGender(user.getGender());
-        response.setDepartment(user.getDepartment());
-        response.setSpecialization(user.getSpecialization());
-        response.setStudentCode(user.getStudentCode());
-        response.setTeacherCode(user.getTeacherCode());
+        authService.forgotPassword(email);
+        return ResponseEntity.ok(Map.of("message", "Email sent successfully"));
+    }
 
-        return ResponseEntity.ok(response);
+    @PostMapping("/verify")
+    public ResponseEntity<?> verify(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String otp = request.get("otp");
+
+        if (token == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Token and OTP are required"));
+        }
+
+        authService.verifyTokenAndOtp(token, otp);
+
+        return ResponseEntity.ok(Map.of("valid", true));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+
+        if (request.getToken() == null || request.getNewPassword() == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Dữ liệu không đầy đủ"));
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Mật khẩu xác nhận không khớp!"));
+        }
+
+        try {
+            authService.resetPassword(request.getToken(), request.getNewPassword());
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Authentication authentication) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+
+        String email = authentication.getName();
+
+        try {
+            authService.changePassword(email, request);
+            return ResponseEntity.ok(Map.of("message", "Thay đổi mật khẩu thành công!"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Có lỗi hệ thống xảy ra!"));
+        }
     }
 }

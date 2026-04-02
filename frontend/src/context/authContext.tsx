@@ -7,8 +7,9 @@ interface AuthContextType {
   accessToken: string | null;
   login: (email: string, password: string) => Promise<any>;
   logout: () => void;
-  getProfile: () => Promise<any>;
+  getProfile: (token?: string) => Promise<any>;
   isLoading: boolean;
+  handleOAuth2Login: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -57,6 +58,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     window.location.href = "/login";
   };
 
+  const handleOAuth2Login = async (token: string) => {
+    setAccessTokenState(token);
+    setAccessToken(token);
+
+    if (token) {
+      const profile = await getProfile(token);
+      setUser(profile);
+    }
+  };
+
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -83,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, login, logout, getProfile, isLoading }}
+      value={{ user, accessToken, login, logout, getProfile, isLoading, handleOAuth2Login }}
     >
       {children}
     </AuthContext.Provider>

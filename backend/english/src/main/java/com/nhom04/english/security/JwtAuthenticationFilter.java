@@ -35,10 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // 🔥 CHỈ bỏ qua login/register/refresh
         if (path.equals("/api/auth/login") ||
-            path.equals("/api/auth/register") ||
-            path.equals("/api/auth/refresh-token")) {
+                path.equals("/api/auth/register") ||
+                path.equals("/api/auth/refresh-token") ||
+                path.equals("/api/auth/forgot-password") ||
+                path.equals("/api/auth/reset-password") ||
+                path.equals("/api/auth/verify")) {
 
             filterChain.doFilter(request, response);
             return;
@@ -48,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = null;
 
-        // 🔥 Lấy từ header
         String authHeader = request.getHeader("Authorization");
         System.out.println("HEADER: " + authHeader);
 
@@ -56,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             token = authHeader.substring(7);
         }
 
-        // 🔥 fallback cookie
         if (token == null && request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("token".equals(cookie.getName())) {
@@ -65,7 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 🔥 nếu có token → set auth
         if (token != null) {
             try {
                 String email = jwtService.extractEmail(token);
@@ -74,11 +73,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("EMAIL: " + email);
                 System.out.println("ROLE: " + role);
 
-                List<SimpleGrantedAuthority> authorities =
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(email, null, authorities);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email,
+                        null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 

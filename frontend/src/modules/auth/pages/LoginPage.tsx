@@ -7,7 +7,7 @@ import { useUser } from "@/context/authContext";
 const title = "LearnEng";
 
 function LoginPage() {
-  const { login, getProfile, user } = useUser();
+  const { login, accessToken } = useUser();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,21 +24,21 @@ function LoginPage() {
   const onFinish = async (values: any) => {
     try {
       const { email, password } = values;
-      await login(email, password);
-      message.success("Đăng nhập thành công!");
-      
-      const profile = await getProfile();
-      const roleName = String(profile?.role?.name || profile?.role || '');
-      
-      if (roleName.includes('TEACHER') || roleName.includes('ADMIN')) {
-        navigate("/teacher/assignments");
-      } else {
+      const result = await login(email, password);
+      if (result.success) {
+        message.success("Đăng nhập thành công!");
         navigate("/");
+      } else {
+        message.error(result.message || "Đăng nhập thất bại!");
       }
     } catch (error) {
       console.error(error);
-      message.error("Có lỗi xảy ra, vui lòng thử lại!");
+      message.error("Có lỗi xảy ra, vùi lòng thử lại!");
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
 
   return (
@@ -117,7 +117,7 @@ function LoginPage() {
           </div>
 
           {/* Submit */}
-          <Form.Item>
+          <Form.Item className="!mb-2">
             <button
               type="submit"
               className="w-full bg-black text-white font-bold py-3 rounded-full hover:bg-gray-800 transition-all duration-300 text-[15px] shadow-md hover:shadow-lg"
@@ -125,6 +125,28 @@ function LoginPage() {
               Đăng nhập
             </button>
           </Form.Item>
+
+          {/* ── Google Login Button (Thêm mới) ── */}
+          <div className="relative flex py-2 items-center">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink mx-4 text-white text-xs uppercase">
+              Hoặc
+            </span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full bg-white text-gray-700 font-semibold py-3 rounded-full border border-gray-300 hover:bg-gray-50 transition-all duration-300 text-[15px] flex items-center justify-center gap-2 shadow-sm"
+          >
+            <img
+              src="https://play-lh.googleusercontent.com/Eh-N9HKWJgQ4Oa5wmhaE5RbHkB3m3Ud9tsW6saUHis05BL7Xnpubi5iamR5lDKd-Ew"
+              alt="Google"
+              className="w-5 h-5"
+            />
+            Đăng nhập với Google
+          </button>
         </Form>
 
         {/* Chưa có tài khoản? */}

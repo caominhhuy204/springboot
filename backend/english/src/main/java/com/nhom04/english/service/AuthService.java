@@ -1,8 +1,12 @@
 package com.nhom04.english.service;
 
+import java.util.UUID;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.apache.commons.codec.digest.DigestUtils;
 
+import com.nhom04.english.dto.ChangePasswordRequest;
 import com.nhom04.english.dto.LoginRequest;
 import com.nhom04.english.dto.RegisterRequest;
 import com.nhom04.english.entity.Role;
@@ -12,6 +16,7 @@ import com.nhom04.english.repository.RoleRepository;
 import com.nhom04.english.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,6 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     public User register(RegisterRequest request) {
 
@@ -50,6 +56,9 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        System.out.println("Login - Raw pass: " + request.getPassword());
+        System.out.println("Login - DB pass: " + user.getPassword());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
@@ -110,5 +119,85 @@ public class AuthService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public void forgotPassword(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email not found"));
+
+        String rawToken = UUID.randomUUID().toString();
+        String hashedToken = DigestUtils.sha256Hex(rawToken);
+
+        String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
+        String hashedOtp = passwordEncoder.encode(otp);
+
+        user.setResetToken(hashedToken);
+        user.setResetOtp(hashedOtp);
+        user.setResetExpire(System.currentTimeMillis() + 10 * 60 * 1000);
+
+        userRepository.save(user);
+
+        String link = "http://localhost:5173/verify-otp?token=" + rawToken;
+
+        emailService.sendEmail(
+                user.getEmail(),
+                "Reset Password",
+                "Link: " + link + "\nOTP: " + otp);
+    }
+
+    public User verifyTokenAndOtp(String rawToken, String otpInput) {
+        String hashedToken = DigestUtils.sha256Hex(rawToken);
+
+        User user = userRepository.findByResetToken(hashedToken)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if (user.getResetExpire() < System.currentTimeMillis()) {
+            throw new RuntimeException("Token expired");
+        }
+
+        if (!passwordEncoder.matches(otpInput, user.getResetOtp())) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        user.setResetOtp(null);
+        return userRepository.save(user);
+    }
+
+    public void resetPassword(String rawToken, String newPassword) {
+        String hashedToken = DigestUtils.sha256Hex(rawToken);
+        User user = userRepository.findByResetToken(hashedToken)
+                .orElseThrow(() -> new RuntimeException("LỖI: Không tìm thấy User với Token này trong DB!"));
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+
+        user.setResetToken(null);
+        user.setResetOtp(null);
+        user.setResetExpire(null);
+
+        userRepository.save(user);
+        System.out.println("== ĐÃ LƯU MẬT KHẨU MỚI THÀNH CÔNG == ");
+    }
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("Mật khẩu cũ không chính xác!");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new RuntimeException("Mật khẩu mới và xác nhận không khớp!");
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new RuntimeException("Mật khẩu mới không được giống mật khẩu cũ!");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

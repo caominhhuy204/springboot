@@ -67,15 +67,12 @@ public class User {
     @EqualsAndHashCode.Exclude
     private Role role;
 
-    @OneToMany(mappedBy = "teacher")
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Set<Classroom> teachingClassrooms;
+    @Column(name = "reset_token")
+    private String resetToken;
 
-    @ManyToMany(mappedBy = "students")
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Set<Classroom> joinedClassrooms;
+    @Column(name = "reset_otp")
+    private String resetOtp;
+
+    @Column(name = "reset_expire")
+    private Long resetExpire;
 }

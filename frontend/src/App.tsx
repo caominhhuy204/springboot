@@ -2,22 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import LoginPage from './modules/auth/pages/LoginPage'
 import RegisterPage from './modules/auth/pages/RegisterPage'
-import ProtectedRoute from './components/ProtectedRoute'
-import AppShell from './components/AppShell'
-import ProfilePage from './modules/profile/pages/ProfilePage'
-import AdminUsersPage from './modules/admin/pages/AdminUsersPage'
-import AdminUserDetailPage from './modules/admin/pages/AdminUserDetailPage'
-import DashboardPage from './modules/dashboard/pages/DashboardPage'
-import ProgressPage from './modules/dashboard/pages/ProgressPage'
-import ClassroomsPage from './modules/classroom/pages/ClassroomsPage'
-import ClassroomDetailPage from './modules/classroom/pages/ClassroomDetailPage'
-import ClassroomProgressPage from './modules/classroom/pages/ClassroomProgressPage'
-import ExamTakingPage from './modules/exam/pages/ExamTakingPage'
-import ExamHistoryPage from './modules/exam/pages/ExamHistoryPage'
-import PronunciationHubPage from './modules/pronunciation/pages/PronunciationHubPage'
-import PronunciationExercisesPage from './modules/pronunciation/pages/PronunciationExercisesPage'
-import PronunciationExerciseDetailPage from './modules/pronunciation/pages/PronunciationExerciseDetailPage'
-import AssignmentPage from './modules/teacher/pages/AssignmentPage'
+import ForgotPasswordPage from './modules/auth/pages/ForgotPasswordPage'
+import ResetPasswordPage from './modules/auth/pages/ResetPasswordPage'
+import VerifyOTPPage from './modules/auth/pages/VerifyOTPPage'
+import OAuth2SuccessPage from './modules/auth/pages/OAuth2SuccessPage'
 
 function App() {
   return (
@@ -26,33 +14,10 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage/>}/>
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppShell />}>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/classrooms" element={<ClassroomsPage />} />
-            <Route path="/classrooms/:id" element={<ClassroomDetailPage />} />
-            <Route path="/classrooms/:id/progress" element={<ClassroomProgressPage />} />
-            <Route path="/exams/:id/take" element={<ExamTakingPage />} />
-            <Route path="/exams/history" element={<ExamHistoryPage />} />
-            <Route path="/pronunciation" element={<PronunciationHubPage />} />
-            <Route path="/classrooms/:classroomId/pronunciation" element={<PronunciationExercisesPage />} />
-            <Route path="/classrooms/:classroomId/pronunciation/:exerciseId" element={<PronunciationExerciseDetailPage />} />
-          </Route>
-        </Route>
-        <Route element={<ProtectedRoute roles={["TEACHER", "ADMIN"]} />}>
-          <Route element={<AppShell />}>
-            <Route path="/teacher/assignments" element={<AssignmentPage />} />
-          </Route>
-        </Route>
-        <Route element={<ProtectedRoute roles={["ADMIN"]} />}>
-          <Route element={<AppShell />}>
-            <Route path="/admin/users" element={<AdminUsersPage />} />
-            <Route path="/admin/users/:id" element={<AdminUserDetailPage />} />
-          </Route>
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path='/forgot-password' element={<ForgotPasswordPage/>}/>
+        <Route path='/reset-password' element={<ResetPasswordPage/>}/>
+        <Route path='/verify-otp' element={<VerifyOTPPage/>}/>
+        <Route path='/oauth2-success' element={<OAuth2SuccessPage />} />
       </Routes>
     </>
   )
