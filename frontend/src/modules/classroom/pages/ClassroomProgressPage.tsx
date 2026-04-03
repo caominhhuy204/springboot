@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Table, Typography, Button, Modal, Input, message, Space, Tag, Card, Avatar } from "antd";
 import { UserOutlined, EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import axios from "@/utils/axiosClient";
+import api from "@/utils/axiosClient";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -27,17 +27,18 @@ const ClassroomProgressPage: React.FC = () => {
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/exams/classrooms/${id}/progress`);
+      const res = await api.get(`/api/exams/classrooms/${id}/progress`);
       setData(res.data);
     } catch (error) {
       console.error("Error fetching classroom progress:", error);
-      message.error("Khong the tai du lieu tien do");
+      message.error("Không thể tải dữ liệu tiến độ");
     } finally {
       setLoading(false);
     }
@@ -54,29 +55,22 @@ const ClassroomProgressPage: React.FC = () => {
 
     setSubmittingFeedback(true);
     try {
-      // For now, we apply feedback to the most recent submission if exists, 
-      // or we could have a more complex feedback system.
-      // In ExamController, we have /api/exams/submissions/{id}/feedback.
-      // But here we might want to send it to the student generally.
-      // Let's assume we have a "General Feedback" or we find the last submission.
-      
-      // Let's call the history to find the latest submission ID for this student
-      const historyRes = await axios.get(`/api/exams/history?email=${selectedStudent.studentEmail}`);
+      const historyRes = await api.get(`/api/exams/history?email=${selectedStudent.studentEmail}`);
       const latestSubmission = historyRes.data[0];
 
       if (latestSubmission) {
-        await axios.post(`/api/exams/submissions/${latestSubmission.submissionId}/feedback`, {
-          feedback: feedbackText
+        await api.post(`/api/exams/submissions/${latestSubmission.submissionId}/feedback`, {
+          feedback: feedbackText,
         });
-        message.success("Da gui nhan xet cho sinh vien");
+        message.success("Đã gửi nhận xét cho sinh viên");
         setFeedbackModalVisible(false);
-        fetchData();
+        void fetchData();
       } else {
-        message.warning("Sinh vien nay chua nop bai nao de nhan xet");
+        message.warning("Sinh viên này chưa nộp bài nào để nhận xét");
       }
     } catch (error) {
       console.error("Error sending feedback:", error);
-      message.error("Loy khi gui nhan xet");
+      message.error("Lỗi khi gửi nhận xét");
     } finally {
       setSubmittingFeedback(false);
     }
@@ -84,99 +78,122 @@ const ClassroomProgressPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Sinh vien",
+      title: "Sinh viên",
       key: "student",
       render: (_: any, record: StudentProgress) => (
         <Space>
-          <Avatar icon={<UserOutlined />} className="bg-blue-500" />
+          <Avatar icon={<UserOutlined />} className="portal-avatar" />
           <div>
             <Text strong className="block">{record.studentName}</Text>
-            <Text type="secondary">{record.studentEmail}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>{record.studentEmail}</Text>
           </div>
         </Space>
       ),
     },
     {
-      title: "Bai tap",
+      title: "Bài tập",
       dataIndex: "totalRegularSubmissions",
       key: "regular",
-      sorter: (a: any, b: any) => a.totalRegularSubmissions - b.totalRegularSubmissions,
+      width: 110,
+      render: (val: number) => <Tag color="blue">{val} bài</Tag>,
     },
     {
-      title: "Phat am",
+      title: "Phát âm",
       dataIndex: "totalPronunciationSubmissions",
       key: "pronunciation",
-      sorter: (a: any, b: any) => a.totalPronunciationSubmissions - b.totalPronunciationSubmissions,
+      width: 110,
+      render: (val: number) => <Tag color="purple">{val} bài</Tag>,
     },
     {
-      title: "Diem trung binh",
+      title: "Điểm TB",
       dataIndex: "averageScore",
       key: "score",
-      render: (score: number) => (
-        <Tag color={score >= 8 ? "green" : score >= 5 ? "orange" : "red"} className="font-semibold px-3 py-1">
-          {score.toFixed(2)}
-        </Tag>
-      ),
-      sorter: (a: any, b: any) => a.averageScore - b.averageScore,
+      width: 110,
+      render: (score: number) => {
+        const color = score >= 8 ? "green" : score >= 5 ? "orange" : "red";
+        return (
+          <Tag color={color} className="!font-bold !px-3 !py-1 !rounded-lg !min-w-[60px] !text-center">
+            {score.toFixed(1)}
+          </Tag>
+        );
+      },
     },
     {
-      title: "Hanh dong",
+      title: "Hành động",
       key: "action",
+      width: 140,
       render: (_: any, record: StudentProgress) => (
-        <Button 
-          type="primary" 
-          ghost 
-          icon={<EditOutlined />} 
+        <Button
+          type="primary"
+          ghost
+          icon={<EditOutlined />}
           onClick={() => handleOpenFeedback(record)}
+          size="small"
         >
-          Viet nhan xet
+          Viết nhận xét
         </Button>
       ),
     },
   ];
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <Space direction="vertical" size={0}>
-          <Link to={`/classrooms/${id}`} className="flex items-center text-slate-500 hover:text-blue-600 mb-2">
-            <ArrowLeftOutlined className="mr-1" /> Quay lai lop hoc
-          </Link>
-          <Title level={2} className="!m-0">Bao cao tien do lop hoc</Title>
-        </Space>
-        <Button onClick={fetchData} loading={loading}>Cap nhat du lieu</Button>
-      </div>
+    <Space direction="vertical" size={16} className="w-full">
+      {/* ── Header ── */}
+      <Card className="dashboard-surface">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <Space direction="vertical" size={0}>
+            <Link
+              to={`/classrooms/${id}`}
+              className="flex items-center text-sky-600 hover:text-sky-700 font-medium"
+            >
+              <ArrowLeftOutlined className="mr-1" /> Quay lại lớp học
+            </Link>
+            <Title level={3} className="!mb-0 !mt-1 !text-slate-800">
+              Báo cáo tiến độ lớp học
+            </Title>
+          </Space>
+          <Button onClick={() => void fetchData()} loading={loading}>
+            Cập nhật dữ liệu
+          </Button>
+        </div>
+      </Card>
 
-      <Card className="shadow-sm">
-        <Table 
-          columns={columns} 
-          dataSource={data} 
-          rowKey="studentId" 
+      {/* ── Table ── */}
+      <Card title="Danh sách sinh viên" className="dashboard-surface">
+        <Table
+          columns={columns}
+          dataSource={data}
+          rowKey="studentId"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ pageSize: 10, showSizeChanger: false }}
+          size="middle"
         />
       </Card>
 
+      {/* ── Feedback modal ── */}
       <Modal
-        title={`Gui nhan xet cho ${selectedStudent?.studentName}`}
+        title={`Gửi nhận xét cho ${selectedStudent?.studentName}`}
         open={feedbackModalVisible}
         onOk={handleSendFeedback}
         onCancel={() => setFeedbackModalVisible(false)}
         confirmLoading={submittingFeedback}
-        okText="Gui nhan xet"
-        cancelText="Huy"
+        okText="Gửi nhận xét"
+        cancelText="Hủy"
+        destroyOnClose
       >
         <div className="py-4">
-          <Text className="block mb-2">Viet loi khuyen hoac nhan xet ve qua trinh hoc cua sinh vien:</Text>
-          <TextArea 
-            rows={4} 
-            value={feedbackText} 
+          <Text className="block mb-2">
+            Viết lời khuyên hoặc nhận xét về quá trình học của sinh viên:
+          </Text>
+          <TextArea
+            rows={4}
+            value={feedbackText}
             onChange={(e) => setFeedbackText(e.target.value)}
-            placeholder="Vi du: Em can chu y hon vao phan phat am duoi..."
+            placeholder="Ví d: Em cần chú ý hơn vào phần phát âm..."
           />
         </div>
       </Modal>
-    </div>
+    </Space>
   );
 };
 

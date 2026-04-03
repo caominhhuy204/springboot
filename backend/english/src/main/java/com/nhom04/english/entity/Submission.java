@@ -37,16 +37,16 @@ public class Submission {
     private Integer totalQuestionsCount;
 
     @Column(length = 2000)
-    private String studentAnswersJson; // Stores answers as JSON string for history
+    private String studentAnswersJson;
 
     @Column(length = 1000)
     private String teacherFeedback;
 
-    @Column(nullable = false)
-    private LocalDateTime submittedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        submittedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 }

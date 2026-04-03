@@ -33,7 +33,7 @@ export interface UpdateProfilePayload {
   address?: string;
   avatarUrl?: string;
   bio?: string;
-  dateOfBirth?: string;
+  dateOfBirth?: string | null;
   gender?: string;
   department?: string;
   specialization?: string;

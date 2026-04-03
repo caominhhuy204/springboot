@@ -1,0 +1,14 @@
+package com.nhom04.english.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class MonthlySubmissionStats {
+    private String month;
+    private long assignments;
+    private long submissions;
+}

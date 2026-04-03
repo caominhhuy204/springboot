@@ -39,7 +39,7 @@ function PronunciationExercisesPage() {
       setExercises(exercisesRes.data);
       setAvailableClassrooms(allClassroomsRes.data);
     } catch {
-      setError("Khong the tai du lieu bai phat am cua lop hoc nay.");
+      setError("Không thể tải dữ liệu bài phát âm của lớp học này.");
     } finally {
       setLoading(false);
     }
@@ -60,10 +60,10 @@ function PronunciationExercisesPage() {
     try {
       if (editingExercise) {
         await api.put(`/api/pronunciation/exercises/${editingExercise.id}`, values);
-        message.success("Da cap nhat bai luyen phat am");
+        message.success("Đã cập nhật bài luyện phát âm");
       } else {
         await api.post(`/api/pronunciation/classrooms/${numericClassroomId}/exercises`, values);
-        message.success("Da tao bai luyen phat am");
+        message.success("Đã tạo bài luyện phát âm");
       }
       setModalOpen(false);
       setEditingExercise(null);
@@ -104,7 +104,7 @@ function PronunciationExercisesPage() {
 
   const handleDeleteExercise = async (exerciseId: number) => {
     await api.delete(`/api/pronunciation/exercises/${exerciseId}`);
-    message.success("Da xoa bai phat am");
+    message.success("Đã xóa bài phát âm");
     await loadData();
   };
 
@@ -118,26 +118,26 @@ function PronunciationExercisesPage() {
           <Col xs={24} xl={15}>
             <Space direction="vertical" size={12} className="w-full">
               <Link to={`/classrooms/${numericClassroomId}`} className="!text-cyan-100">
-                Quay lai lop hoc
+                Quay lại lớp học
               </Link>
               <span className="pronunciation-hero__eyebrow">
                 <SoundOutlined />
                 Pronunciation workspace
               </span>
               <Title level={2} className="!mb-0 !text-cyan-50">
-                {classroom?.name ?? "Dang tai lop hoc"}
+                {classroom?.name ?? "Đang tải lớp học"}
               </Title>
               <Paragraph className="!mb-0 !text-cyan-100">
-                Tao bai theo cau mau, dinh huong ky nang can luyen va de sinh vien ghi am hoac upload file de nop bai.
+                Tạo bài theo câu mẫu, định hướng kỹ năng cần luyện và để sinh viên ghi âm hoặc upload file để nộp bài.
               </Paragraph>
               <div className="flex flex-wrap gap-2">
                 <span className="pronunciation-pill">
                   <TeamOutlined />
-                  {classroom?.studentCount ?? 0} sinh vien
+                  {classroom?.studentCount ?? 0} sinh viên
                 </span>
                 <span className="pronunciation-pill">
                   <RiseOutlined />
-                  {exercises.length} bai luyen
+                  {exercises.length} bài luyện
                 </span>
               </div>
             </Space>
@@ -146,17 +146,17 @@ function PronunciationExercisesPage() {
             <Row gutter={[12, 12]}>
               <Col span={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Bai luyen" value={exercises.length} prefix={<AudioOutlined />} />
+                  <Statistic title="Bài luyện" value={exercises.length} prefix={<AudioOutlined />} />
                 </Card>
               </Col>
               <Col span={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Bai nop" value={totalSubmissions} prefix={<TeamOutlined />} />
+                  <Statistic title="Bài nộp" value={totalSubmissions} prefix={<TeamOutlined />} />
                 </Card>
               </Col>
               <Col span={24}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Tong luot nop toi da" value={totalAttempts} prefix={<RiseOutlined />} />
+                  <Statistic title="Tổng lượt nộp tối đa" value={totalAttempts} prefix={<RiseOutlined />} />
                 </Card>
               </Col>
             </Row>
@@ -167,12 +167,12 @@ function PronunciationExercisesPage() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <Text type="secondary">
           {canManage
-            ? "Ban co the tao moi, sua, xoa va giao bai phat am nay cho mot hoac nhieu lop."
-            : "Chon bai luyen ben duoi de mo khu vuc nop audio va xem lich su cham bai."}
+            ? "Bạn có thể tạo mới, sửa, xóa và giao bài phát âm này cho một hoặc nhiều lớp."
+            : "Chọn bài luyện bên dưới để mở khu vực nộp audio và xem lịch sử chấm bài."}
         </Text>
         {canManage && (
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal} size="large">
-            Tao bai phat am
+            Tạo bài phát âm
           </Button>
         )}
       </div>
@@ -185,7 +185,7 @@ function PronunciationExercisesPage() {
         </Card>
       ) : exercises.length === 0 ? (
         <Card className="pronunciation-panel !rounded-2xl">
-          <Empty description="Chua co bai phat am nao trong lop nay" />
+          <Empty description="Chưa có bài phát âm nào trong lớp này" />
         </Card>
       ) : (
         <Row gutter={[16, 16]}>
@@ -195,10 +195,10 @@ function PronunciationExercisesPage() {
                 <div className="pronunciation-exercise-card__banner">
                   <Space direction="vertical" size={10} className="w-full">
                     <Space wrap>
-                      <Tag color="blue">Do kho {exercise.difficultyLevel}/5</Tag>
-                      <Tag color="gold">Toi da {exercise.maxAttempts} lan nop</Tag>
-                      <Tag color="green">{exercise.submissionCount} bai nop</Tag>
-                      <Tag color="purple">{exercise.classroomNames.length} lop duoc giao</Tag>
+                      <Tag color="blue">Độ khó {exercise.difficultyLevel}/5</Tag>
+                      <Tag color="gold">Tối đa {exercise.maxAttempts} lần nộp</Tag>
+                      <Tag color="green">{exercise.submissionCount} bài nộp</Tag>
+                      <Tag color="purple">{exercise.classroomNames.length} lớp được giao</Tag>
                     </Space>
                     <Title level={4} className="!mb-0 !text-slate-50">
                       {exercise.title}
@@ -211,7 +211,7 @@ function PronunciationExercisesPage() {
                     {exercise.focusSkill && (
                       <span className="pronunciation-pill">
                         <SoundOutlined />
-                        Ky nang trong tam: {exercise.focusSkill}
+                        Kỹ năng trọng tâm: {exercise.focusSkill}
                       </span>
                     )}
                     {exercise.classroomNames.length > 0 && (
@@ -227,7 +227,7 @@ function PronunciationExercisesPage() {
                     <Space wrap>
                       <Link to={`/classrooms/${numericClassroomId}/pronunciation/${exercise.id}`}>
                         <Button icon={<AudioOutlined />} type="primary">
-                          Mo bai luyen
+                          Mở bài luyện
                         </Button>
                       </Link>
                       {canManage && (
@@ -237,8 +237,8 @@ function PronunciationExercisesPage() {
                       )}
                       {canManage && (
                         <Popconfirm
-                          title="Xoa bai phat am"
-                          description="Ban chac chan muon xoa bai nay?"
+                          title="Xóa bài phát âm"
+                          description="Bạn chắc chắn muốn xóa bài này?"
                           okText="Xoa"
                           cancelText="Huy"
                           onConfirm={() => void handleDeleteExercise(exercise.id)}
@@ -259,51 +259,51 @@ function PronunciationExercisesPage() {
 
       <Modal
         open={modalOpen}
-        title={editingExercise ? "Sua bai phat am" : "Tao bai phat am"}
+        title={editingExercise ? "Sửa bài phát âm" : "Tạo bài phát âm"}
         onCancel={() => {
           setModalOpen(false);
           setEditingExercise(null);
         }}
         onOk={() => void handleCreateExercise()}
         confirmLoading={submitting}
-        okText={editingExercise ? "Luu thay doi" : "Tao bai"}
+        okText={editingExercise ? "Lưu thay đổi" : "Tạo bài"}
       >
         <Form layout="vertical" form={form} initialValues={{ difficultyLevel: 1, maxAttempts: 3 }}>
           <Form.Item
             name="classroomIds"
-            label="Giao cho lop"
-            rules={[{ required: true, message: "Chon it nhat mot lop hoc" }]}
+            label="Giao cho lớp"
+            rules={[{ required: true, message: "Chọn ít nhất một lớp học" }]}
           >
             <Select
               mode="multiple"
               options={availableClassrooms.map((item) => ({ label: item.name, value: item.id }))}
-              placeholder="Chon mot hoac nhieu lop"
+              placeholder="Chọn một hoặc nhiều lớp"
             />
           </Form.Item>
-          <Form.Item name="title" label="Tieu de" rules={[{ required: true, message: "Nhap tieu de" }]}>
+          <Form.Item name="title" label="Tiêu đề" rules={[{ required: true, message: "Nhập tiêu đề" }]}>
             <Input />
           </Form.Item>
           <Form.Item
             name="referenceText"
-            label="Cau mau"
-            rules={[{ required: true, message: "Nhap cau mau cho bai phat am" }]}
+            label="Câu mẫu"
+            rules={[{ required: true, message: "Nhập câu mẫu cho bài phát âm" }]}
           >
             <Input.TextArea rows={3} />
           </Form.Item>
-          <Form.Item name="focusSkill" label="Ky nang trong tam">
+          <Form.Item name="focusSkill" label="Kỹ năng trọng tâm">
             <Input placeholder="VD: ending sounds, stress, /s/ va /sh/" />
           </Form.Item>
-          <Form.Item name="description" label="Huong dan">
+          <Form.Item name="description" label="Hướng dẫn">
             <Input.TextArea rows={3} />
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="difficultyLevel" label="Do kho">
+              <Form.Item name="difficultyLevel" label="Độ khó">
                 <InputNumber min={1} max={5} className="w-full" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="maxAttempts" label="So lan nop toi da">
+              <Form.Item name="maxAttempts" label="Số lần nộp tối đa">
                 <InputNumber min={1} max={10} className="w-full" />
               </Form.Item>
             </Col>

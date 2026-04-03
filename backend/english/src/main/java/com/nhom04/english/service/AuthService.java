@@ -180,6 +180,29 @@ public class AuthService {
         System.out.println("== ĐÃ LƯU MẬT KHẨU MỚI THÀNH CÔNG == ");
     }
 
+    public User adminCreateUser(RegisterRequest request, RoleName roleName) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email đã tồn tại");
+        }
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username đã tồn tại");
+        }
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role không tìm thấy: " + roleName));
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setFullname(request.getFullname());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+
+        return userRepository.save(user);
+    }
+
     @Transactional
     public void changePassword(String email, ChangePasswordRequest request) {
         User user = userRepository.findByEmail(email)
