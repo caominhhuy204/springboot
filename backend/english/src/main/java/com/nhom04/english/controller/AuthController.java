@@ -14,6 +14,7 @@ import com.nhom04.english.dto.LoginRequest;
 import com.nhom04.english.dto.RegisterRequest;
 import com.nhom04.english.dto.ResetPasswordRequest;
 import com.nhom04.english.dto.UserResponse;
+import com.nhom04.english.entity.Role.RoleName;
 import com.nhom04.english.entity.User;
 import com.nhom04.english.service.AuthService;
 import com.nhom04.english.repository.UserRepository;
@@ -39,6 +40,29 @@ public class AuthController {
         response.put("data", toUserResponse(user));
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Admin tạo tài khoản cho giáo viên hoặc học sinh
+     */
+    @PostMapping("/admin/create-user")
+    public ResponseEntity<?> createUser(@RequestBody RegisterRequest request,
+                                       @RequestParam(defaultValue = "STUDENT") String role) {
+        try {
+            RoleName roleName = RoleName.valueOf(role.toUpperCase());
+            User user = authService.adminCreateUser(request, roleName);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", toUserResponse(user));
+            response.put("message", "Tạo tài khoản " + roleName + " thành công!");
+
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Role không hợp lệ: " + role));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     @PostMapping("/login")

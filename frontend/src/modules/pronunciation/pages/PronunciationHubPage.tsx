@@ -3,7 +3,7 @@ import { AudioOutlined, RiseOutlined, SoundOutlined, TeamOutlined } from "@ant-d
 import { Alert, Button, Card, Col, Empty, Row, Skeleton, Space, Statistic, Tag, Typography } from "antd";
 import { Link } from "react-router-dom";
 import api from "@/utils/axiosClient";
-import type { Classroom } from "@/types/classroom";
+import type { classroom as Classroom } from "@/types/classroom";
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -20,13 +20,14 @@ function PronunciationHubPage() {
         const res = await api.get<Classroom[]>("/api/classrooms");
         setClassrooms(res.data);
       } catch {
-        setError("Khong the tai danh sach lop hoc cho module phat am.");
+        setError("Không thể tải danh sách lớp học cho module phát âm.");
       } finally {
         setLoading(false);
       }
     };
 
     void loadClassrooms();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const totalStudents = classrooms.reduce((sum, classroom) => sum + classroom.studentCount, 0);
@@ -34,6 +35,7 @@ function PronunciationHubPage() {
 
   return (
     <Space direction="vertical" size={16} className="w-full">
+      {/* ── Hero banner ── */}
       <Card className="pronunciation-hero !rounded-3xl !border-0">
         <Row gutter={[24, 24]} align="middle">
           <Col xs={24} xl={15}>
@@ -43,10 +45,10 @@ function PronunciationHubPage() {
                 TV6 Pronunciation
               </span>
               <Title level={2} className="!mb-0 !text-cyan-50">
-                Trung tam luyen phat am cho tung lop hoc
+                Trung tâm luyện phát âm cho từng lớp học
               </Title>
               <Paragraph className="!mb-0 !text-cyan-100">
-                Chon lop de mo danh sach bai luyen, ghi am nhanh, upload audio va theo doi lich su nop bai trong cung mot khu vuc.
+                Chọn lớp để mở danh sách bài luyện, ghi âm nhanh, upload audio và theo dõi lịch sử nộp bài trong cùng một khu vực.
               </Paragraph>
             </Space>
           </Col>
@@ -54,18 +56,18 @@ function PronunciationHubPage() {
             <Row gutter={[12, 12]}>
               <Col span={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Lop co phat am" value={classrooms.length} prefix={<AudioOutlined />} />
+                  <Statistic title="Lớp có phát âm" value={classrooms.length} prefix={<AudioOutlined />} />
                 </Card>
               </Col>
               <Col span={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Tong hoc vien" value={totalStudents} prefix={<TeamOutlined />} />
+                  <Statistic title="Tổng học viên" value={totalStudents} prefix={<TeamOutlined />} />
                 </Card>
               </Col>
               <Col span={24}>
                 <Card bordered={false} className="pronunciation-metric">
                   <Statistic
-                    title="Lop da co giao vien phu trach"
+                    title="Lớp đã có giáo viên phụ trách"
                     value={classroomsWithTeacher}
                     suffix={`/ ${classrooms.length || 0}`}
                     prefix={<RiseOutlined />}
@@ -80,15 +82,15 @@ function PronunciationHubPage() {
       {error && <Alert type="error" showIcon message={error} />}
 
       {loading ? (
-        <Card className="shadow-sm">
+        <Card className="dashboard-surface">
           <Skeleton active paragraph={{ rows: 4 }} />
         </Card>
       ) : classrooms.length === 0 ? (
         <Card className="pronunciation-panel !rounded-2xl">
-          <Empty description="Ban chua co lop hoc nao de su dung module phat am" />
+          <Empty description="Bạn chưa có lớp học nào để sử dụng module phát âm" />
         </Card>
       ) : (
-        <Row gutter={[16, 16]}>
+        <Row gutter={[14, 14]}>
           {classrooms.map((classroom) => (
             <Col xs={24} lg={12} xl={8} key={classroom.id}>
               <Card className="pronunciation-exercise-card h-full !rounded-3xl">
@@ -101,7 +103,7 @@ function PronunciationHubPage() {
                       {classroom.name}
                     </Title>
                     <Text className="!text-cyan-50">
-                      Giao vien: {classroom.teacherName ?? "Chua gan"}
+                      Giáo viên: {classroom.teacherName ?? "Chưa gắn"}
                     </Text>
                   </Space>
                 </div>
@@ -110,19 +112,19 @@ function PronunciationHubPage() {
                     <div className="flex flex-wrap gap-2">
                       <span className="pronunciation-pill">
                         <TeamOutlined />
-                        {classroom.studentCount} sinh vien
+                        {classroom.studentCount} sinh viên
                       </span>
                       <span className="pronunciation-pill">
                         <SoundOutlined />
-                        Khu vuc nop audio
+                        Khu vực nộp audio
                       </span>
                     </div>
                     <Paragraph className="!mb-0 !text-slate-600">
-                      {classroom.description || "Mo module nay de tao bai phat am, nop audio va xem tien do cua tung hoc vien."}
+                      {classroom.description || "Mở module này để tạo bài phát âm, nộp audio và xem tiến độ của từng học viên."}
                     </Paragraph>
                     <Link to={`/classrooms/${classroom.id}/pronunciation`}>
                       <Button type="primary" icon={<AudioOutlined />} size="large">
-                        Mo module phat am
+                        Mở module phát âm
                       </Button>
                     </Link>
                   </Space>

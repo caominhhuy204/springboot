@@ -19,7 +19,9 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import api from "@/utils/axiosClient";
 import { useUser } from "@/context/authContext";
+
 import type { Classroom, ClassroomStudent, ClassroomTeacher } from "@/types/classroom";
+
 
 const { Text } = Typography;
 type InviteType = "student" | "teacher";
@@ -135,31 +137,37 @@ function ClassroomDetailPage() {
   };
 
   if (!classroom && !loading) {
-    return <Empty description="Khong tim thay lop hoc" />;
+    return <Empty description="Không tìm thấy lớp học" />;
   }
 
   return (
     <Space direction="vertical" size={16} className="w-full">
-      <Link to="/classrooms">Quay lai danh sach lop hoc</Link>
+      <Link to="/classrooms" className="text-sky-600 hover:text-sky-700 font-medium">
+        ← Quay lại danh sách lớp học
+      </Link>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[14, 14]}>
         <Col xs={24} xl={9}>
-          <Card title="Thong tin lop hoc" className="shadow-sm" loading={loading}>
+          <Card title="Thông tin lớp học" className="dashboard-surface" loading={loading}>
             <Descriptions column={1} size="small">
-              <Descriptions.Item label="ID">{classroom?.id}</Descriptions.Item>
-              <Descriptions.Item label="Ma lop">{classroom?.code}</Descriptions.Item>
-              <Descriptions.Item label="Ten lop">{classroom?.name}</Descriptions.Item>
-              <Descriptions.Item label="Giao vien">
-                {classroom?.teacherName || <Tag>Chua gan</Tag>}
+              <Descriptions.Item label="ID">
+                <span className="font-mono text-slate-500">#{classroom?.id}</span>
               </Descriptions.Item>
-              <Descriptions.Item label="Email giao vien">{classroom?.teacherEmail || "-"}</Descriptions.Item>
-              <Descriptions.Item label="So sinh vien">{students.length}</Descriptions.Item>
-              <Descriptions.Item label="Mo ta">{classroom?.description || "-"}</Descriptions.Item>
+              <Descriptions.Item label="Mã lớp">
+                <Tag color="blue" className="font-mono">{classroom?.code}</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Tên lớp">{classroom?.name}</Descriptions.Item>
+              <Descriptions.Item label="Giáo viên">
+                {classroom?.teacherName || <Tag color="default">Chưa gắn</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="Email giáo viên">{classroom?.teacherEmail || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Số sinh viên">{students.length}</Descriptions.Item>
+              <Descriptions.Item label="Mô tả">{classroom?.description || "—"}</Descriptions.Item>
             </Descriptions>
             {(user?.role === "TEACHER" || user?.role === "ADMIN") && (
               <Link to={`/classrooms/${classroomId}/progress`}>
-                <Button className="mt-4 ml-2">
-                  Xem bao cao tien do
+                <Button type="primary" className="mt-4">
+                  Xem báo cáo tiến độ
                 </Button>
               </Link>
             )}
@@ -167,6 +175,7 @@ function ClassroomDetailPage() {
         </Col>
 
         <Col xs={24} xl={15}>
+
           <Space direction="vertical" size={16} className="w-full">
             <Card
               title="Giao vien"
@@ -235,6 +244,32 @@ function ClassroomDetailPage() {
               )}
             </Card>
           </Space>
+
+          <Card title="Sinh viên trong lớp" className="dashboard-surface" loading={loading}>
+            <div className="mb-3">
+              <Text type="secondary">
+                Sinh viên tham gia lớp bằng mã lớp <strong className="text-sky-600">{classroom?.code}</strong>
+              </Text>
+            </div>
+
+            {students.length === 0 ? (
+              <Empty description="Chưa có sinh viên nào trong lớp" />
+            ) : (
+              <List
+                dataSource={students}
+                pagination={{ pageSize: 10 }}
+                renderItem={(student: ClassroomStudent) => (
+                  <List.Item>
+                    <Space size={12} align="center">
+                      <Avatar className="portal-avatar">{getInitials(student.fullname || student.username)}</Avatar>
+                      <Text strong>{student.fullname || student.username}</Text>
+                    </Space>
+                  </List.Item>
+                )}
+              />
+            )}
+          </Card>
+
         </Col>
       </Row>
 

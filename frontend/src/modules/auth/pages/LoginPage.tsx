@@ -86,7 +86,7 @@ function LoginPage() {
               name="email"
               prefix={<UserIcon className="w-5 h-5 text-gray-400 mr-2" />}
               placeholder="Nhập email"
-              className="!rounded-full !py-3 !px-6 !text-[14px] focus:shadow-lg transition-all duration-300"
+              className="!rounded-full !py-3 !px-6 !text-[14px] focus:shadow-lg transition-all duration-300 !bg-white/20 !backdrop-blur-md !border !border-white/30  placeholder:!text-white/60"
             />
           </Form.Item>
 
@@ -99,7 +99,7 @@ function LoginPage() {
               name="password"
               prefix={<LockClosedIcon className="w-5 h-5 text-gray-400 mr-2" />}
               placeholder="Nhập mật khẩu"
-              className="!rounded-full !py-3 !px-6 !text-[14px] focus:shadow-lg transition-all duration-300"
+              className="!rounded-full !py-3 !px-6 !text-[14px] focus:shadow-lg transition-all duration-300 !bg-white/20 !backdrop-blur-md !border !border-white/30 placeholder:!text-white/60"
             />
           </Form.Item>
 
