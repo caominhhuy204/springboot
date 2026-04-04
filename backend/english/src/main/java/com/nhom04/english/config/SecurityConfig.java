@@ -2,9 +2,11 @@ package com.nhom04.english.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.cors.*;
 
 import com.nhom04.english.security.JwtAuthenticationFilter;
@@ -22,10 +24,15 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, OAuth2SuccessHandler oAuth2SuccessHandler) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            OAuth2SuccessHandler oAuth2SuccessHandler,
+            ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.clientRegistrationRepositoryProvider = clientRegistrationRepositoryProvider;
     }
 
     @Bean
@@ -40,9 +47,11 @@ public class SecurityConfig {
                                 "/login/oauth2/**")
                         .permitAll()
                         .anyRequest().authenticated())
-                .oauth2Login(oauth -> oauth
-                        .successHandler(oAuth2SuccessHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+            if (clientRegistrationRepositoryProvider.getIfAvailable() != null) {
+                http.oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler));
+            }
 
         return http.build();
     }

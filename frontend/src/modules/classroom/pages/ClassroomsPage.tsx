@@ -123,11 +123,6 @@ function ClassroomsPage() {
             <Title level={3} className="!mb-1">
               Lop hoc cua ban
             </Title>
-            <Text type="secondary">
-              {canJoin
-                ? "Ban chi thay cac lop da tham gia. Dung ma lop de vao lop moi."
-                : "Tao va quan ly lop hoc theo kieu Google Classroom."}
-            </Text>
           </div>
           <Space wrap>
             <Input
@@ -209,6 +204,7 @@ function ClassroomsPage() {
 
       <Modal
         open={modalOpen}
+        className="classroom-modal-square"
         title={editingClassroom ? "Sua lop hoc" : "Tao lop hoc"}
         onCancel={() => setModalOpen(false)}
         onOk={() => void handleSubmit()}
@@ -227,6 +223,7 @@ function ClassroomsPage() {
 
       <Modal
         open={joinModalOpen}
+        className="classroom-modal-square"
         title="Tham gia lop hoc"
         onCancel={() => setJoinModalOpen(false)}
         onOk={() => void handleJoinByCode()}

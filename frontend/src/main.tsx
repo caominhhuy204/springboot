@@ -10,7 +10,7 @@ const theme = {
   token: {
     colorPrimary: "#667eea",
     borderRadius: 9999,
-    colorBgContainer: "transparent",
+    colorBgContainer: "#ffffff",
   },
 };
 
