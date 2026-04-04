@@ -17,7 +17,7 @@ async function getAudioDuration(file: File): Promise<number> {
       const audio = document.createElement("audio");
       audio.preload = "metadata";
       audio.onloadedmetadata = () => resolve(audio.duration);
-      audio.onerror = () => reject(new Error("Khong the doc metadata cua audio"));
+      audio.onerror = () => reject(new Error("Không thể đọc metadata của audio"));
       audio.src = objectUrl;
     });
 
@@ -91,7 +91,7 @@ function PronunciationExerciseDetailPage() {
       setExercise(exerciseRes.data);
       setSubmissions(submissionsRes.data);
     } catch {
-      setError("Khong the tai du lieu bai phat am.");
+      setError("Không thể tải dữ liệu bài phát âm.");
     } finally {
       setLoading(false);
     }
@@ -145,7 +145,7 @@ function PronunciationExerciseDetailPage() {
 
     try {
       await api.put(`/api/pronunciation/submissions/${reviewingSubmission.id}/review`, values);
-      message.success("Da luu diem va nhan xet cua giao vien");
+      message.success("Đã lưu điểm và nhận xét của giáo viên");
       setReviewModalOpen(false);
       setReviewingSubmission(null);
       reviewForm.resetFields();
@@ -157,7 +157,7 @@ function PronunciationExerciseDetailPage() {
 
   const handleSubmit = async () => {
     if (!selectedFile) {
-      message.error("Chon mot file audio truoc khi nop");
+      message.error("Chọn một file audio trước khi nộp");
       return;
     }
 
@@ -174,11 +174,11 @@ function PronunciationExerciseDetailPage() {
         },
       });
 
-      message.success("Da nop bai phat am");
+      message.success("Đã nộp bài phát âm");
       clearSelectedAudio();
       await loadData();
     } catch (submitError: any) {
-      const errorMessage = submitError?.response?.data?.message ?? "Khong the nop bai phat am";
+      const errorMessage = submitError?.response?.data?.message ?? "Không thể nộp bài phát âm";
       message.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -250,7 +250,7 @@ function PronunciationExerciseDetailPage() {
       setRecordingState("recording");
       mediaRecorder.start();
     } catch {
-      message.error("Khong the truy cap microphone. Hay kiem tra quyen ghi am.");
+      message.error("Không thể truy cập microphone. Hãy kiểm tra quyền ghi âm.");
     }
   };
 
@@ -273,7 +273,7 @@ function PronunciationExerciseDetailPage() {
   };
 
   if (!exercise && !loading) {
-    return <Empty description="Khong tim thay bai phat am" />;
+    return <Empty description="Không tìm thấy bài phát âm" />;
   }
 
   const exerciseData = exercise;
@@ -285,26 +285,26 @@ function PronunciationExerciseDetailPage() {
           <Col xs={24} xl={15}>
             <Space direction="vertical" size={12} className="w-full">
               <Link to={`/classrooms/${numericClassroomId}/pronunciation`} className="!text-cyan-100">
-                Quay lai danh sach bai phat am
+                Quay lại danh sách bài phát âm
               </Link>
               <span className="pronunciation-hero__eyebrow">
                 <SoundOutlined />
                 Exercise detail
               </span>
               <Title level={2} className="!mb-0 !text-cyan-50">
-                {exerciseData?.title ?? "Dang tai bai luyen"}
+                {exerciseData?.title ?? "Đang tải bài luyện"}
               </Title>
               <Paragraph className="!mb-0 !text-cyan-100">
-                Luyen theo cau mau, ghi am nhanh va theo doi ket qua cham bai trong cung mot man hinh.
+                Luyện theo câu mẫu, ghi âm nhanh và theo dõi kết quả chấm bài trong cùng một màn hình.
               </Paragraph>
               <div className="flex flex-wrap gap-2">
                 <span className="pronunciation-pill">
                   <AudioOutlined />
-                  Do kho {exerciseData?.difficultyLevel ?? 0}/5
+                  Độ khó {exerciseData?.difficultyLevel ?? 0}/5
                 </span>
                 <span className="pronunciation-pill">
                   <UploadOutlined />
-                  Toi da {exerciseData?.maxAttempts ?? 0} lan nop
+                  Tối đa {exerciseData?.maxAttempts ?? 0} lần nộp
                 </span>
               </div>
             </Space>
@@ -313,17 +313,17 @@ function PronunciationExerciseDetailPage() {
             <Row gutter={[12, 12]}>
               <Col span={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Tong bai nop" value={submissions.length} prefix={<RiseOutlined />} />
+                  <Statistic title="Tổng bài nộp" value={submissions.length} prefix={<RiseOutlined />} />
                 </Card>
               </Col>
               <Col span={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Cho cham" value={pendingCount} prefix={<SoundOutlined />} />
+                  <Statistic title="Chờ chấm" value={pendingCount} prefix={<SoundOutlined />} />
                 </Card>
               </Col>
               <Col span={24}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Da cham" value={reviewedCount} prefix={<AudioOutlined />} />
+                  <Statistic title="Đã chấm" value={reviewedCount} prefix={<AudioOutlined />} />
                 </Card>
               </Col>
             </Row>
@@ -344,15 +344,15 @@ function PronunciationExerciseDetailPage() {
               <Card className="pronunciation-panel !rounded-3xl">
                 <Space direction="vertical" size={14} className="w-full">
                   <Space wrap>
-                    <Tag color="blue">Do kho {exerciseData?.difficultyLevel}/5</Tag>
-                    <Tag color="gold">Toi da {exerciseData?.maxAttempts} lan nop</Tag>
-                    <Tag color="green">{submissions.length} bai nop</Tag>
+                    <Tag color="blue">Độ khó {exerciseData?.difficultyLevel}/5</Tag>
+                    <Tag color="gold">Tối đa {exerciseData?.maxAttempts} lần nộp</Tag>
+                    <Tag color="green">{submissions.length} bài nộp</Tag>
                   </Space>
                   <Title level={3} className="!mb-0">
                     {exerciseData?.title}
                   </Title>
                   <Card size="small" className="!rounded-2xl !border-cyan-100 !bg-cyan-50">
-                    <Text strong>Cau mau</Text>
+                    <Text strong>Câu mẫu</Text>
                     <Paragraph className="!mb-0 !mt-2 !text-slate-700">
                       {exerciseData?.referenceText}
                     </Paragraph>
@@ -361,20 +361,20 @@ function PronunciationExerciseDetailPage() {
                     <Alert
                       type="info"
                       showIcon
-                      message={`Ky nang trong tam: ${exerciseData.focusSkill}`}
+                      message={`Kỹ năng trọng tâm: ${exerciseData.focusSkill}`}
                     />
                   )}
                   {exerciseData?.description && (
                     <Paragraph className="!mb-0 !text-slate-600">{exerciseData.description}</Paragraph>
                   )}
                   <Text type="secondary">
-                    Tao boi {exerciseData?.createdByName} luc {formatDateTime(exerciseData?.createdAt)}
+                    Tạo bởi {exerciseData?.createdByName} lúc {formatDateTime(exerciseData?.createdAt)}
                   </Text>
                 </Space>
               </Card>
 
               {isStudent && (
-                <Card title="Ghi am va nop bai" className="pronunciation-panel !rounded-3xl mt-4">
+                <Card title="Ghi âm và nộp bài" className="pronunciation-panel !rounded-3xl mt-4">
                   <Form layout="vertical">
                     <Space direction="vertical" size={14} className="w-full">
                       <div className="pronunciation-recorder p-4">
@@ -386,19 +386,19 @@ function PronunciationExerciseDetailPage() {
                               danger={recordingState === "recording"}
                               onClick={() => void (recordingState === "recording" ? stopRecording() : startRecording())}
                             >
-                              {recordingState === "recording" ? "Dung ghi am" : "Bat dau ghi am"}
+                              {recordingState === "recording" ? "Dừng ghi âm" : "Bắt đầu ghi âm"}
                             </Button>
                             {(selectedFile || recordedPreviewUrl) && (
-                              <Button onClick={clearSelectedAudio}>Xoa audio da chon</Button>
+                              <Button onClick={clearSelectedAudio}>Xóa audio đã chọn</Button>
                             )}
                           </Space>
                           {recordingState === "recording" && (
                             <span className="pronunciation-recording-live">
-                              Dang ghi {recordingTime}s
+                              Đang ghi {recordingTime}s
                             </span>
                           )}
                           <Text type="secondary">
-                            Ban co the ghi am truc tiep tu trinh duyet hoac tai len file audio co san.
+                            Bạn có thể ghi âm trực tiếp từ trình duyệt hoặc tải lên file audio có sẵn.
                           </Text>
                         </Space>
                       </div>
@@ -433,19 +433,19 @@ function PronunciationExerciseDetailPage() {
                         <p className="ant-upload-drag-icon">
                           <InboxOutlined />
                         </p>
-                        <p className="ant-upload-text">Keo tha hoac chon file audio</p>
-                        <p className="ant-upload-hint">Ho tro file ghi am tu trinh duyet hoac file upload thu cong.</p>
+                        <p className="ant-upload-text">Kéo thả hoặc chọn file audio</p>
+                        <p className="ant-upload-hint">Hỗ trợ file ghi âm từ trình duyệt hoặc file upload thủ công.</p>
                       </Upload.Dragger>
 
                       {recordedPreviewUrl && (
                         <div>
-                          <Text type="secondary">Nghe lai ban ghi truoc khi nop</Text>
+                          <Text type="secondary">Nghe lại bản ghi trước khi nộp</Text>
                           <audio controls src={recordedPreviewUrl} className="w-full mt-2" />
                         </div>
                       )}
 
                       <Button type="primary" size="large" onClick={() => void handleSubmit()} loading={submitting}>
-                        Nop bai phat am
+                        Nộp bài phát âm
                       </Button>
                     </Space>
                   </Form>
@@ -455,12 +455,12 @@ function PronunciationExerciseDetailPage() {
 
             <Col xs={24} xl={14}>
               {isStudent && latestSubmission && (
-                <Card title="Ket qua gan nhat" className="pronunciation-panel !rounded-3xl mb-4">
+                <Card title="Kết quả gần nhất" className="pronunciation-panel !rounded-3xl mb-4">
                   <Row gutter={[16, 16]}>
                     <Col xs={24} md={12}>
                       <Card bordered={false} className="pronunciation-metric">
                         <Statistic
-                          title="Diem giao vien"
+                          title="Điểm giáo viên"
                           value={latestSubmission.reviewStatus === "REVIEWED" ? latestSubmission.teacherScore ?? 0 : 0}
                           valueStyle={{
                             color:
@@ -468,7 +468,7 @@ function PronunciationExerciseDetailPage() {
                                 ? getScoreColor(latestSubmission.teacherScore ?? 0)
                                 : "#0f172a",
                           }}
-                          suffix={latestSubmission.reviewStatus === "REVIEWED" ? "/100" : "Cho cham"}
+                          suffix={latestSubmission.reviewStatus === "REVIEWED" ? "/100" : "Chờ chấm"}
                         />
                       </Card>
                     </Col>
@@ -476,10 +476,10 @@ function PronunciationExerciseDetailPage() {
                       <Card bordered={false} className="pronunciation-metric h-full">
                         <Space direction="vertical" size={10}>
                           <Tag color={latestSubmission.reviewStatus === "REVIEWED" ? "green" : "orange"}>
-                            {latestSubmission.reviewStatus === "REVIEWED" ? "Da giao vien cham" : "Dang cho giao vien cham"}
+                            {latestSubmission.reviewStatus === "REVIEWED" ? "Đã giáo viên chấm" : "Đang chờ giáo viên chấm"}
                           </Tag>
                           <Text type="secondary">
-                            Nop luc {formatDateTime(latestSubmission.submittedAt)}
+                            Nộp lúc {formatDateTime(latestSubmission.submittedAt)}
                           </Text>
                         </Space>
                       </Card>
@@ -507,8 +507,8 @@ function PronunciationExerciseDetailPage() {
                       showIcon
                       message={
                         latestSubmission.reviewStatus === "REVIEWED"
-                          ? (latestSubmission.teacherFeedback || "Giao vien da cham diem.")
-                          : "Bai nop da duoc ghi nhan va dang cho giao vien cham."
+                          ? (latestSubmission.teacherFeedback || "Giáo viên đã chấm điểm.")
+                          : "Bài nộp đã được ghi nhận và đang chờ giáo viên chấm."
                       }
                     />
                   </Space>
@@ -516,22 +516,22 @@ function PronunciationExerciseDetailPage() {
               )}
 
               <Card
-                title={isStudent ? "Lich su nop bai" : "Danh sach bai nop"}
+                title={isStudent ? "Lịch sử nộp bài" : "Danh sách bài nộp"}
                 className="pronunciation-panel !rounded-3xl"
                 extra={!isStudent && (
                   <Segmented
                     value={reviewFilter}
                     onChange={(value) => setReviewFilter(value as "ALL" | "PENDING" | "REVIEWED")}
                     options={[
-                      { label: `Tat ca (${submissions.length})`, value: "ALL" },
-                      { label: `Cho cham (${pendingCount})`, value: "PENDING" },
-                      { label: `Da cham (${reviewedCount})`, value: "REVIEWED" },
+                      { label: `Tất cả (${submissions.length})`, value: "ALL" },
+                      { label: `Chờ chấm (${pendingCount})`, value: "PENDING" },
+                      { label: `Đã chấm (${reviewedCount})`, value: "REVIEWED" },
                     ]}
                   />
                 )}
               >
                 {groupedSubmissions.length === 0 ? (
-                  <Empty description="Chua co bai nop nao" />
+                  <Empty description="Chưa có bài nộp nào" />
                 ) : isStudent ? (
                   <List
                     dataSource={groupedSubmissions}
@@ -539,24 +539,24 @@ function PronunciationExerciseDetailPage() {
                       <List.Item className="pronunciation-submission-item">
                         <Space direction="vertical" size={8} className="w-full">
                           <Space wrap>
-                            <Tag color="blue">Lan {submission.attemptNumber}</Tag>
+                            <Tag color="blue">Lần {submission.attemptNumber}</Tag>
                             <Tag color={submission.reviewStatus === "REVIEWED" ? "green" : "orange"}>
-                              {submission.reviewStatus === "REVIEWED" ? "Da cham" : "Cho cham"}
+                              {submission.reviewStatus === "REVIEWED" ? "Đã chấm" : "Chờ chấm"}
                             </Tag>
                             <Tag color="cyan">{formatDateTime(submission.submittedAt)}</Tag>
                           </Space>
                           <Text strong>
-                            Diem giao vien: {submission.reviewStatus === "REVIEWED" ? `${submission.teacherScore}/100` : "Chua cham"}
+                            Điểm giáo viên: {submission.reviewStatus === "REVIEWED" ? `${submission.teacherScore}/100` : "Chưa chấm"}
                           </Text>
-                          <Text type="secondary">Thoi luong: {submission.durationSeconds.toFixed(1)} giay</Text>
+                          <Text type="secondary">Thời lượng: {submission.durationSeconds.toFixed(1)} giây</Text>
                           <audio controls src={submission.audioUrl} className="w-full" />
                           {submission.reviewStatus === "PENDING" && (
-                            <Text type="secondary">Diem tham khao he thong: {submission.autoOverallScore}/100</Text>
+                            <Text type="secondary">Điểm tham khảo hệ thống: {submission.autoOverallScore}/100</Text>
                           )}
                           <Text>
                             {submission.reviewStatus === "REVIEWED"
-                              ? (submission.teacherFeedback || "Khong co nhan xet bo sung")
-                              : "Bai nop dang cho giao vien danh gia."}
+                              ? (submission.teacherFeedback || "Không có nhận xét bổ sung")
+                              : "Bài nộp đang chờ giáo viên đánh giá."}
                           </Text>
                         </Space>
                       </List.Item>
@@ -569,22 +569,22 @@ function PronunciationExerciseDetailPage() {
                     dataSource={groupedSubmissions}
                     pagination={{ pageSize: 6 }}
                     columns={[
-                      { title: "Sinh vien", dataIndex: "studentName", key: "studentName" },
-                      { title: "Lan", dataIndex: "attemptNumber", key: "attemptNumber", width: 80 },
+                      { title: "Sinh viên", dataIndex: "studentName", key: "studentName" },
+                      { title: "Lần", dataIndex: "attemptNumber", key: "attemptNumber", width: 80 },
                       {
-                        title: "Diem",
+                        title: "Điểm",
                         dataIndex: "teacherScore",
                         key: "teacherScore",
                         width: 100,
-                        render: (value: number | null, record) => record.reviewStatus === "REVIEWED" ? `${value}/100` : "Cho cham",
+                        render: (value: number | null, record) => record.reviewStatus === "REVIEWED" ? `${value}/100` : "Chờ chấm",
                       },
                       {
-                        title: "Trang thai",
+                        title: "Trạng thái",
                         dataIndex: "reviewStatus",
                         key: "reviewStatus",
                         render: (status: PronunciationSubmission["reviewStatus"]) => (
                           <Tag color={status === "REVIEWED" ? "green" : "orange"}>
-                            {status === "REVIEWED" ? "Da cham" : "Cho cham"}
+                            {status === "REVIEWED" ? "Đã chấm" : "Chờ chấm"}
                           </Tag>
                         ),
                       },
@@ -596,7 +596,7 @@ function PronunciationExerciseDetailPage() {
                         render: (value: number) => `${value}/100`,
                       },
                       {
-                        title: "Thoi gian nop",
+                        title: "Thời gian nộp",
                         dataIndex: "submittedAt",
                         key: "submittedAt",
                         width: 170,
@@ -609,11 +609,11 @@ function PronunciationExerciseDetailPage() {
                         render: (_, record) => <audio controls src={record.audioUrl} />,
                       },
                       ...(canReview ? [{
-                        title: "Cham bai",
+                        title: "Chấm bài",
                         key: "review",
                         render: (_: unknown, record: PronunciationSubmission) => (
                           <Button type="primary" onClick={() => openReviewModal(record)}>
-                            {record.reviewStatus === "REVIEWED" ? "Sua diem" : "Cham diem"}
+                            {record.reviewStatus === "REVIEWED" ? "Sửa điểm" : "Chấm điểm"}
                           </Button>
                         ),
                       }] : []),
@@ -626,7 +626,7 @@ function PronunciationExerciseDetailPage() {
 
           <Modal
             open={reviewModalOpen}
-            title="Cham bai phat am"
+            title="Chấm bài phát âm"
             onCancel={() => {
               setReviewModalOpen(false);
               setReviewingSubmission(null);
@@ -637,19 +637,19 @@ function PronunciationExerciseDetailPage() {
           >
             <Space direction="vertical" size={12} className="w-full mb-4">
               <Text>
-                Auto score tham khao: <strong>{reviewingSubmission?.autoOverallScore ?? "-"}/100</strong>
+                Điểm tự động tham khảo: <strong>{reviewingSubmission?.autoOverallScore ?? "-"}/100</strong>
               </Text>
               <Text type="secondary">{reviewingSubmission?.autoFeedback}</Text>
             </Space>
             <Form layout="vertical" form={reviewForm}>
               <Form.Item
                 name="teacherScore"
-                label="Diem giao vien"
-                rules={[{ required: true, message: "Nhap diem giao vien" }]}
+                label="Điểm giáo viên"
+                rules={[{ required: true, message: "Nhập điểm giáo viên" }]}
               >
                 <InputNumber min={0} max={100} className="w-full" />
               </Form.Item>
-              <Form.Item name="teacherFeedback" label="Nhan xet giao vien">
+              <Form.Item name="teacherFeedback" label="Nhận xét giáo viên">
                 <Input.TextArea rows={4} placeholder="Nhan xet chi tiet cho hoc sinh" />
               </Form.Item>
             </Form>

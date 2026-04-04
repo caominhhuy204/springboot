@@ -1,10 +1,28 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Empty, Form, Input, Modal, Row, Space, Tag, Typography, message } from "antd";
-import { BookOutlined, TeamOutlined } from "@ant-design/icons";
+import {
+  BookOutlined,
+  TeamOutlined,
+  SearchOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Empty,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Tag,
+  Typography,
+  message,
+} from "antd";
 import { Link } from "react-router-dom";
 import api from "@/utils/axiosClient";
 import { useUser } from "@/context/authContext";
-import type { Classroom, ClassroomPayload, JoinClassroomPayload } from "@/types/classroom";
+import type {Classroom, ClassroomPayload, JoinClassroomPayload } from "@/types/classroom";
 
 const { Title, Text } = Typography;
 
@@ -38,6 +56,7 @@ function ClassroomsPage() {
 
   useEffect(() => {
     void loadClassrooms();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openCreateModal = () => {
@@ -55,11 +74,6 @@ function ClassroomsPage() {
     setModalOpen(true);
   };
 
-  const openJoinModal = () => {
-    joinForm.resetFields();
-    setJoinModalOpen(true);
-  };
-
   const handleSubmit = async () => {
     const values = await form.validateFields();
     setSubmitting(true);
@@ -67,10 +81,10 @@ function ClassroomsPage() {
     try {
       if (editingClassroom) {
         await api.put(`/api/classrooms/${editingClassroom.id}`, values);
-        message.success("Cap nhat lop hoc thanh cong");
+        message.success("Cập nhật lớp học thành công");
       } else {
         await api.post("/api/classrooms", values);
-        message.success("Tao lop hoc thanh cong. Ma lop da duoc tao tu dong");
+        message.success("Tạo lớp học thành công! Mã lớp đã được tạo tự động");
       }
 
       setModalOpen(false);
@@ -89,12 +103,13 @@ function ClassroomsPage() {
       await api.post("/api/classrooms/join", {
         code: values.code.trim().toUpperCase(),
       });
-      message.success("Tham gia lop hoc thanh cong");
+      message.success("Tham gia lớp học thành công");
       setJoinModalOpen(false);
       joinForm.resetFields();
       await loadClassrooms();
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message ?? "Khong the tham gia lop hoc";
+      const errorMessage =
+        error?.response?.data?.message ?? "Không thể tham gia lớp học";
       message.error(errorMessage);
     } finally {
       setSubmitting(false);
@@ -108,7 +123,12 @@ function ClassroomsPage() {
     }
 
     return classrooms.filter((classroom) =>
-      [classroom.code, classroom.name, classroom.teacherName ?? "", classroom.teacherEmail ?? ""]
+      [
+        classroom.code,
+        classroom.name,
+        classroom.teacherName ?? "",
+        classroom.teacherEmail ?? "",
+      ]
         .join(" ")
         .toLowerCase()
         .includes(normalized),
@@ -117,58 +137,64 @@ function ClassroomsPage() {
 
   return (
     <Space direction="vertical" size={16} className="w-full">
-      <Card className="shadow-sm">
+      {/* ── Header card ── */}
+      <Card className="dashboard-surface">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <Title level={3} className="!mb-1">
-              Lop hoc cua ban
+            <Title level={3} className="!mb-1 !text-slate-800">
+              Lớp học của bạn
             </Title>
             <Text type="secondary">
               {canJoin
-                ? "Ban chi thay cac lop da tham gia. Dung ma lop de vao lop moi."
-                : "Tao va quan ly lop hoc theo kieu Google Classroom."}
+                ? "Bạn chỉ thấy các lớp đã tham gia. Dùng mã lớp để vào lớp mới."
+                : "Tạo và quản lý lớp học dễ dàng."}
             </Text>
           </div>
           <Space wrap>
             <Input
-              placeholder="Tim theo ten lop, ma lop, giao vien"
+              prefix={<SearchOutlined className="text-gray-400" />}
+              placeholder="Tìm theo tên lớp, mã lớp, giáo viên"
               value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
+              onChange={(e) => setKeyword(e.target.value)}
               allowClear
-              className="min-w-[240px]"
+              className="!min-w-[240px]"
             />
             {canJoin && (
-              <Button type="default" onClick={openJoinModal}>
-                Tham gia bang ma lop
+              <Button icon={<PlusOutlined />} onClick={() => setJoinModalOpen(true)}>
+                Tham gia bằng mã lớp
               </Button>
             )}
             {canManage && (
-              <Button type="primary" onClick={openCreateModal}>
-                Tao lop hoc
+              <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
+                Tạo lớp học
               </Button>
             )}
           </Space>
         </div>
       </Card>
 
+      {/* ── Empty state ── */}
       {filteredClassrooms.length === 0 ? (
-        <Card className="shadow-sm">
+        <Card className="dashboard-surface">
           <Empty
             description={
               canJoin
-                ? "Ban chua tham gia lop hoc nao. Hay nhap ma lop de bat dau."
-                : "Chua co lop hoc nao. Hay tao lop hoc dau tien."
-            }
+                ? "Bạn chưa tham gia lớp học nào. Hãy nhập mã lớp để bắt đầu."
+                : "Chưa có lớp học nào. Hãy tạo lớp học đầu tiên."}
           />
         </Card>
       ) : (
-        <Row gutter={[16, 16]}>
+        /* ── Classroom cards grid ── */
+        <Row gutter={[14, 14]}>
           {filteredClassrooms.map((classroom) => {
             const toneClass = CARD_TONES[classroom.id % CARD_TONES.length];
 
             return (
               <Col key={classroom.id} xs={24} md={12} xl={8}>
-                <Card className={`classroom-card ${toneClass}`} bodyStyle={{ padding: 0 }}>
+                <Card
+                  className={`classroom-card ${toneClass}`}
+                  bodyStyle={{ padding: 0 }}
+                >
                   <div className="classroom-card__head">
                     <div>
                       <Text className="classroom-card__code">{classroom.code}</Text>
@@ -182,22 +208,36 @@ function ClassroomsPage() {
                   <div className="classroom-card__body">
                     <Space direction="vertical" size={8} className="w-full">
                       <Text>
-                        Giao vien: <strong>{classroom.teacherName ?? "Chua gan"}</strong>
+                        Giáo viên: <strong>{classroom.teacherName ?? "Chưa gắn"}</strong>
                       </Text>
-                      <Text type="secondary">{classroom.teacherEmail ?? "Khong co email giao vien"}</Text>
+                      <Text type="secondary">
+                        {classroom.teacherEmail ?? "Không có email giáo viên"}
+                      </Text>
                       <div className="flex items-center gap-2">
-                        <TeamOutlined />
-                        <Text>{classroom.studentCount} sinh vien</Text>
+                        <TeamOutlined className="text-slate-400" />
+                        <Text>{classroom.studentCount} sinh viên</Text>
                       </div>
-                      {classroom.description && <Text type="secondary">{classroom.description}</Text>}
+                      {classroom.description && (
+                        <Text type="secondary" ellipsis={{ tooltip: true }}>
+                          {classroom.description}
+                        </Text>
+                      )}
                     </Space>
 
                     <div className="classroom-card__actions">
                       <Link to={`/classrooms/${classroom.id}`}>
-                        <Button type="default">Xem chi tiet</Button>
+                        <Button type="default" size="small">
+                          Xem chi tiết
+                        </Button>
                       </Link>
-                      {canManage && <Button onClick={() => openEditModal(classroom)}>Sua</Button>}
-                      <Tag color="blue">Ma lop: {classroom.code}</Tag>
+                      {canManage && (
+                        <Button size="small" onClick={() => openEditModal(classroom)}>
+                          Sửa
+                        </Button>
+                      )}
+                      <Tag color="blue" className="font-mono">
+                        Mã lớp: {classroom.code}
+                      </Tag>
                     </div>
                   </div>
                 </Card>
@@ -207,38 +247,55 @@ function ClassroomsPage() {
         </Row>
       )}
 
+      {/* ── Create / Edit modal ── */}
       <Modal
         open={modalOpen}
-        title={editingClassroom ? "Sua lop hoc" : "Tao lop hoc"}
+        title={
+          <Space>
+            <BookOutlined className="text-sky-500" />
+            <span>{editingClassroom ? "Sửa lớp học" : "Tạo lớp học"}</span>
+          </Space>
+        }
         onCancel={() => setModalOpen(false)}
         onOk={() => void handleSubmit()}
         confirmLoading={submitting}
-        okText={editingClassroom ? "Luu" : "Tao"}
+        okText={editingClassroom ? "Lưu" : "Tạo"}
+        destroyOnClose
       >
         <Form layout="vertical" form={form}>
-          <Form.Item name="name" label="Ten lop" rules={[{ required: true, message: "Nhap ten lop" }]}>
-            <Input placeholder="VD: Tieng Anh giao tiep" />
+          <Form.Item
+            name="name"
+            label="Tên lớp"
+            rules={[{ required: true, message: "Vui lòng nhập tên lớp" }]}
+          >
+            <Input placeholder="VD: Tiếng Anh giao tiếp" />
           </Form.Item>
-          <Form.Item name="description" label="Mo ta">
-            <Input.TextArea rows={4} placeholder="Mo ta ngan cho lop hoc" />
+          <Form.Item name="description" label="Mô tả">
+            <Input.TextArea rows={4} placeholder="Mô tả ngắn cho lớp học" />
           </Form.Item>
         </Form>
       </Modal>
 
+      {/* ── Join by code modal ── */}
       <Modal
         open={joinModalOpen}
-        title="Tham gia lop hoc"
+        title={
+          <Space>
+            <span>Tham gia lớp học</span>
+          </Space>
+        }
         onCancel={() => setJoinModalOpen(false)}
         onOk={() => void handleJoinByCode()}
         confirmLoading={submitting}
         okText="Tham gia"
+        destroyOnClose
       >
         <Form layout="vertical" form={joinForm}>
           <Form.Item
             name="code"
-            label="Ma lop"
-            rules={[{ required: true, message: "Nhap ma lop" }]}
-            extra="Nhap ma lop do giao vien cung cap"
+            label="Mã lớp"
+            rules={[{ required: true, message: "Vui lòng nhập mã lớp" }]}
+            extra="Nhập mã lớp do giáo viên cung cấp"
           >
             <Input placeholder="VD: A7K9P2QX" autoComplete="off" />
           </Form.Item>
