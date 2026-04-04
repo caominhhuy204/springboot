@@ -11,4 +11,5 @@ public class ClassroomStudentResponse {
     String fullname;
     String email;
     String studentCode;
+    Boolean invited;
 }

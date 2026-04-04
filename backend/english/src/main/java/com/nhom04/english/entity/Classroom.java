@@ -57,4 +57,24 @@ public class Classroom {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<User> students = new HashSet<>();
+
+        @ManyToMany
+        @JoinTable(
+            name = "classroom_invited_students",
+            joinColumns = @JoinColumn(name = "classroom_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id"))
+        @JsonIgnore
+        @ToString.Exclude
+        @EqualsAndHashCode.Exclude
+        private Set<User> invitedStudents = new HashSet<>();
+
+        @ManyToMany
+        @JoinTable(
+            name = "classroom_invited_teachers",
+            joinColumns = @JoinColumn(name = "classroom_id"),
+            inverseJoinColumns = @JoinColumn(name = "teacher_id"))
+        @JsonIgnore
+        @ToString.Exclude
+        @EqualsAndHashCode.Exclude
+        private Set<User> invitedTeachers = new HashSet<>();
 }

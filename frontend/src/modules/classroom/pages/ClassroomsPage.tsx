@@ -144,11 +144,14 @@ function ClassroomsPage() {
             <Title level={3} className="!mb-1 !text-slate-800">
               Lớp học của bạn
             </Title>
+
+
             <Text type="secondary">
               {canJoin
                 ? "Bạn chỉ thấy các lớp đã tham gia. Dùng mã lớp để vào lớp mới."
                 : "Tạo và quản lý lớp học dễ dàng."}
             </Text>
+
           </div>
           <Space wrap>
             <Input
@@ -250,12 +253,17 @@ function ClassroomsPage() {
       {/* ── Create / Edit modal ── */}
       <Modal
         open={modalOpen}
+
+        className="classroom-modal-square"
+        title={editingClassroom ? "Sua lop hoc" : "Tao lop hoc"}
+
         title={
           <Space>
             <BookOutlined className="text-sky-500" />
             <span>{editingClassroom ? "Sửa lớp học" : "Tạo lớp học"}</span>
           </Space>
         }
+
         onCancel={() => setModalOpen(false)}
         onOk={() => void handleSubmit()}
         confirmLoading={submitting}
@@ -279,6 +287,10 @@ function ClassroomsPage() {
       {/* ── Join by code modal ── */}
       <Modal
         open={joinModalOpen}
+
+        className="classroom-modal-square"
+        title="Tham gia lop hoc"
+
         title={
           <Space>
             <span>Tham gia lớp học</span>

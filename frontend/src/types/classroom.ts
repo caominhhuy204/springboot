@@ -4,6 +4,7 @@ export interface ClassroomStudent {
   fullname: string;
   email: string;
   studentCode?: string | null;
+  invited?: boolean;
 }
 
 export interface ClassroomTeacher {
@@ -12,6 +13,7 @@ export interface ClassroomTeacher {
   fullname: string;
   email: string;
   teacherCode?: string | null;
+  invited?: boolean;
 }
 
 export interface Classroom {
