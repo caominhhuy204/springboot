@@ -31,18 +31,45 @@ public class DataInitializer implements CommandLineRunner {
             });
         }
 
-        if (userRepository.findByEmail("admin@learneng.local").isEmpty()) {
-            Role adminRole = roleRepository.findByName(RoleName.ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
+        createDefaultUser(
+                "admin@learneng.local",
+                "admin",
+                "System Administrator",
+                "Admin@123",
+                RoleName.ADMIN,
+                null);
 
-            User admin = new User();
-            admin.setUsername("admin");
-            admin.setFullname("System Administrator");
-            admin.setEmail("admin@learneng.local");
-            admin.setPassword(passwordEncoder.encode("Admin@123"));
-            admin.setRole(adminRole);
+        createDefaultUser(
+                "teacher@learneng.local",
+                "teacher",
+                "Default Teacher",
+                "Teacher@123",
+                RoleName.TEACHER,
+                "GV001");
+    }
 
-            userRepository.save(admin);
+    private void createDefaultUser(
+            String email,
+            String username,
+            String fullname,
+            String rawPassword,
+            RoleName roleName,
+            String teacherCode) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            return;
         }
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role " + roleName + " not found"));
+
+        User user = new User();
+        user.setUsername(username);
+        user.setFullname(fullname);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole(role);
+        user.setTeacherCode(teacherCode);
+
+        userRepository.save(user);
     }
 }
