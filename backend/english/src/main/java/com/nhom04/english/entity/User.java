@@ -96,9 +96,6 @@ public class User {
     @Column(name = "reset_expire")
     private Long resetExpire;
 
-    @Column(name = "reset_verified")
-    private Boolean resetVerified;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

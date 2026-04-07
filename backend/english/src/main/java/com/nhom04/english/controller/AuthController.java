@@ -157,12 +157,8 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Email is required"));
         }
 
-        try {
-            authService.forgotPassword(email);
-            return ResponseEntity.ok(Map.of("message", "Email sent successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
+        authService.forgotPassword(email);
+        return ResponseEntity.ok(Map.of("message", "Email sent successfully"));
     }
 
     @PostMapping("/verify")
@@ -174,12 +170,9 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Token and OTP are required"));
         }
 
-        try {
-            authService.verifyTokenAndOtp(token, otp);
-            return ResponseEntity.ok(Map.of("valid", true));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("valid", false, "message", e.getMessage()));
-        }
+        authService.verifyTokenAndOtp(token, otp);
+
+        return ResponseEntity.ok(Map.of("valid", true));
     }
 
     @PostMapping("/reset-password")
