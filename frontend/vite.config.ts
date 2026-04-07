@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
           target: proxyTarget,
           changeOrigin: true,
         },
-        "/login": {
+        "/login/oauth2": {
           target: proxyTarget,
           changeOrigin: true,
         },
