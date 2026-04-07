@@ -3,6 +3,7 @@ package com.nhom04.english.controller;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,10 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
+    @Value("${app.cookie.secure:true}")
+    private boolean secureCookie;
+    @Value("${app.cookie.same-site:None}")
+    private String sameSite;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
@@ -72,7 +77,8 @@ public class AuthController {
 
             ResponseCookie cookie = ResponseCookie.from("token", token)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(secureCookie)
+                    .sameSite(sameSite)
                     .path("/")
                     .maxAge(60 * 60 * 3)
                     .build();
@@ -118,7 +124,8 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(secureCookie)
+                .sameSite(sameSite)
                 .path("/")
                 .maxAge(0)
                 .build();

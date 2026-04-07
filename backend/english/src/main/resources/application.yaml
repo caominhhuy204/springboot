@@ -1,9 +1,13 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY:framework}
+
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:english}
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/mydb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${DB_URL:jdbcmysql://root:gbAKZDeZFXsiyhycdFQcatRvFwNwFMaW@shinkansen.proxy.rlwy.net:10892/railway}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
     driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
@@ -19,8 +23,8 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:letoanban.word@gmail.com}
-    password: ${MAIL_PASSWORD:smsfsmvmuxggtzme}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     protocol: ${MAIL_PROTOCOL:smtp}
     properties:
       mail:
@@ -35,6 +39,9 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   oauth2-success-path: ${OAUTH2_SUCCESS_PATH:/oauth2-success}
   reset-password-path: ${RESET_PASSWORD_PATH:/verify-otp}
+  cookie:
+    secure: ${APP_COOKIE_SECURE:true}
+    same-site: ${APP_COOKIE_SAME_SITE:None}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173}
 
@@ -42,5 +49,5 @@ pronunciation:
   storage-dir: ${PRONUNCIATION_STORAGE_DIR:uploads/pronunciation}
 
 jwt:
-  secret: ${JWT_SECRET:}
+  secret: ${JWT_SECRET:change-me-to-a-long-random-secret-key-1234567890}
   expiration: ${JWT_EXPIRATION:3600000}

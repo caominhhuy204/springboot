@@ -18,6 +18,7 @@ Default local values are already wired in `application.yaml`:
 - db: `mydb`
 - db user: `root`
 - db password: `123456`
+- backend port: `PORT` or `8080`
 
 ### Frontend
 
@@ -40,11 +41,14 @@ The project now supports environment overrides while preserving local defaults.
 
 ### Backend
 
+- `PORT`
+- `DB_URL`
 - `DB_HOST`
 - `DB_PORT`
 - `DB_NAME`
 - `DB_USERNAME`
 - `DB_PASSWORD`
+- `DB_USE_SSL`
 - `JWT_SECRET`
 - `JWT_EXPIRATION`
 - `GOOGLE_CLIENT_ID`
@@ -53,6 +57,12 @@ The project now supports environment overrides while preserving local defaults.
 - `FRONTEND_URL`
 - `CORS_ALLOWED_ORIGINS`
 - `PRONUNCIATION_STORAGE_DIR`
+- `APP_COOKIE_SECURE`
+- `APP_COOKIE_SAME_SITE`
+- `MAIL_HOST`
+- `MAIL_PORT`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
 
 ### Frontend
 
@@ -81,3 +91,13 @@ For production-like deploy, put your real values in `.env` based on `.env.exampl
 - The current Google OAuth client id/secret and JWT secret still have local-safe defaults for compatibility.
 - Before a real public deploy, rotate those secrets and provide them only through environment variables.
 - Pronunciation audio is stored on disk. In Docker, keep the mounted volume so uploads survive restarts.
+
+## Render deploy
+
+- The backend is ready to deploy from [render.yaml](/D:/OneDrive/MĂ¡y%20tĂ­nh/springboot/render.yaml).
+- Use the repo root in Render and keep the service root at `backend/english`.
+- Health check endpoint: `GET /api/health`
+- Required env vars on Render: `DB_URL` or `DB_HOST` + `DB_PORT` + `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`
+- Optional env vars on Render: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `PRONUNCIATION_STORAGE_DIR`
+- If you want Google OAuth on Render, also set `SPRING_PROFILES_ACTIVE=oauth`
+- For HTTPS cross-site cookie auth, keep `APP_COOKIE_SECURE=true` and `APP_COOKIE_SAME_SITE=None`
