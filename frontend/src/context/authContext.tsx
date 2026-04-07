@@ -3,6 +3,14 @@ import { setAccessToken, getAccessToken } from "../context/tokenStore";
 import api from "@/utils/axiosClient";
 import type { UserProfile, UserProfileApiResponse, UserRole } from "@/types/user";
 
+const publicAuthPaths = new Set([
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/verify-otp",
+  "/reset-password",
+]);
+
 interface AuthContextType {
   user: UserProfile | null;
   accessToken: string | null;
@@ -80,6 +88,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      if (publicAuthPaths.has(window.location.pathname)) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const res = await api.post("/api/auth/refresh-token");
 
