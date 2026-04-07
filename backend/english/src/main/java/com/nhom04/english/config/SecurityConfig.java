@@ -15,6 +15,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -33,16 +36,19 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider;
     private final String corsAllowedOrigins;
+    private final String googleRedirectUri;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             OAuth2SuccessHandler oAuth2SuccessHandler,
             ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider,
-            @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173}") String corsAllowedOrigins) {
+            @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173}") String corsAllowedOrigins,
+            @Value("${GOOGLE_REDIRECT_URI:}") String googleRedirectUri) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.clientRegistrationRepositoryProvider = clientRegistrationRepositoryProvider;
         this.corsAllowedOrigins = corsAllowedOrigins;
+        this.googleRedirectUri = googleRedirectUri;
     }
 
     @Bean
@@ -70,8 +76,13 @@ public class SecurityConfig {
                         request -> request.getRequestURI().startsWith("/api/")))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        if (clientRegistrationRepositoryProvider.getIfAvailable() != null) {
-            http.oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler));
+        ClientRegistrationRepository clientRegistrationRepository = clientRegistrationRepositoryProvider.getIfAvailable();
+        if (clientRegistrationRepository != null) {
+            http.oauth2Login(oauth -> oauth
+                    .authorizationEndpoint(endpoint -> endpoint
+                            .authorizationRequestResolver(
+                                    oauth2AuthorizationRequestResolver(clientRegistrationRepository)))
+                    .successHandler(oAuth2SuccessHandler));
         }
 
         return http.build();
@@ -108,5 +119,43 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
 
         return source;
+    }
+
+    private OAuth2AuthorizationRequestResolver oauth2AuthorizationRequestResolver(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        DefaultOAuth2AuthorizationRequestResolver defaultResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
+
+        return new OAuth2AuthorizationRequestResolver() {
+            @Override
+            public OAuth2AuthorizationRequest resolve(jakarta.servlet.http.HttpServletRequest request) {
+                return customizeAuthorizationRequest(defaultResolver.resolve(request), request);
+            }
+
+            @Override
+            public OAuth2AuthorizationRequest resolve(
+                    jakarta.servlet.http.HttpServletRequest request,
+                    String clientRegistrationId) {
+                return customizeAuthorizationRequest(
+                        defaultResolver.resolve(request, clientRegistrationId),
+                        request);
+            }
+        };
+    }
+
+    private OAuth2AuthorizationRequest customizeAuthorizationRequest(
+            OAuth2AuthorizationRequest authorizationRequest,
+            jakarta.servlet.http.HttpServletRequest request) {
+        if (authorizationRequest == null || googleRedirectUri == null || googleRedirectUri.isBlank()) {
+            return authorizationRequest;
+        }
+
+        if (!request.getRequestURI().endsWith("/google")) {
+            return authorizationRequest;
+        }
+
+        return OAuth2AuthorizationRequest.from(authorizationRequest)
+                .redirectUri(googleRedirectUri.trim())
+                .build();
     }
 }
