@@ -5,6 +5,12 @@ import { useEffect } from "react";
 import { useUser } from "@/context/authContext";
 
 const title = "LearnEng";
+const apiBaseUrl =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
+  "http://localhost:8080";
+const googleAuthUrl =
+  (import.meta.env.VITE_GOOGLE_AUTH_URL as string | undefined) ||
+  `${apiBaseUrl}/oauth2/authorization/google`;
 
 function LoginPage() {
   const { login, user } = useUser();
@@ -31,14 +37,16 @@ function LoginPage() {
       } else {
         message.error(result.message || "Đăng nhập thất bại!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      message.error("Có lỗi xảy ra, vùi lòng thử lại!");
+      const errorMessage =
+        error?.response?.data?.message ?? "Có lỗi xảy ra, vui lòng thử lại!";
+      message.error(errorMessage);
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = googleAuthUrl;
   };
 
   return (
@@ -80,12 +88,12 @@ function LoginPage() {
           {/* Email */}
           <Form.Item
             name="email"
-            rules={[{ required: true, message: "Vui lòng nhập email!" }]}
+            rules={[{ required: true, message: "Vui lòng nhập email hoặc username!" }]}
           >
             <Input
               name="email"
               prefix={<UserIcon className="w-5 h-5 text-gray-400 mr-2" />}
-              placeholder="Nhập email"
+              placeholder="Nhập email hoặc username"
               className="!rounded-full !py-3 !px-6 !text-[14px] focus:shadow-lg transition-all duration-300 !bg-white/20 !backdrop-blur-md !border !border-white/30  placeholder:!text-white/60"
             />
           </Form.Item>

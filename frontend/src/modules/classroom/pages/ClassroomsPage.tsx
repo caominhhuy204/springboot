@@ -4,6 +4,7 @@ import {
   TeamOutlined,
   SearchOutlined,
   PlusOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -17,12 +18,13 @@ import {
   Space,
   Tag,
   Typography,
+  Alert,
   message,
 } from "antd";
 import { Link } from "react-router-dom";
 import api from "@/utils/axiosClient";
 import { useUser } from "@/context/authContext";
-import type {Classroom, ClassroomPayload, JoinClassroomPayload } from "@/types/classroom";
+import type { Classroom, ClassroomInvitation, ClassroomPayload, JoinClassroomPayload } from "@/types/classroom";
 
 const { Title, Text } = Typography;
 
@@ -41,6 +43,7 @@ function ClassroomsPage() {
   const canJoin = user?.role === "STUDENT";
 
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const [invitations, setInvitations] = useState<ClassroomInvitation[]>([]);
   const [keyword, setKeyword] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
@@ -54,10 +57,39 @@ function ClassroomsPage() {
     setClassrooms(res.data);
   };
 
+  const loadInvitations = async () => {
+    if (user?.role !== "STUDENT" && user?.role !== "TEACHER") {
+      setInvitations([]);
+      return;
+    }
+
+    const res = await api.get<ClassroomInvitation[]>("/api/classrooms/invitations");
+    setInvitations(res.data);
+  };
+
   useEffect(() => {
-    void loadClassrooms();
+    const load = async () => {
+      await Promise.all([loadClassrooms(), loadInvitations()]);
+    };
+
+    void load();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user?.role]);
+
+  const handleAcceptInvitation = async (classroomId: number) => {
+    setSubmitting(true);
+
+    try {
+      await api.post(`/api/classrooms/${classroomId}/accept-invitation`);
+      message.success("Đã chấp nhận lời mời và tham gia lớp học");
+      await Promise.all([loadClassrooms(), loadInvitations()]);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? "Không thể chấp nhận lời mời";
+      message.error(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const openCreateModal = () => {
     setEditingClassroom(null);
@@ -113,6 +145,15 @@ function ClassroomsPage() {
       message.error(errorMessage);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleCopyClassroomCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      message.success(`Đã sao chép mã lớp ${code}`);
+    } catch {
+      message.error("Không thể sao chép mã lớp");
     }
   };
 
@@ -176,6 +217,46 @@ function ClassroomsPage() {
         </div>
       </Card>
 
+      {invitations.length > 0 && (
+        <Card className="dashboard-surface" title="Lời mời vào lớp học">
+          <Space direction="vertical" size={12} className="w-full">
+            {invitations.map((invitation) => (
+              <Alert
+                key={`${invitation.inviteType}-${invitation.classroomId}`}
+                type="info"
+                showIcon
+                message={`${invitation.classroomName} (${invitation.classroomCode})`}
+                description={
+                  <div className="flex flex-col gap-2">
+                    <Text>
+                      {invitation.inviteType === "TEACHER"
+                        ? "Bạn được mời tham gia lớp với quyền giáo viên."
+                        : "Bạn được mời tham gia lớp với vai trò sinh viên."}
+                    </Text>
+                    <Text type="secondary">
+                      Người mời: {invitation.invitedByName ?? "Không rõ"} {invitation.invitedByEmail ? `- ${invitation.invitedByEmail}` : ""}
+                    </Text>
+                    {invitation.classroomDescription && (
+                      <Text type="secondary">{invitation.classroomDescription}</Text>
+                    )}
+                  </div>
+                }
+                action={
+                  <Button
+                    type="primary"
+                    size="small"
+                    loading={submitting}
+                    onClick={() => void handleAcceptInvitation(invitation.classroomId)}
+                  >
+                    Chấp nhận
+                  </Button>
+                }
+              />
+            ))}
+          </Space>
+        </Card>
+      )}
+
       {/* ── Empty state ── */}
       {filteredClassrooms.length === 0 ? (
         <Card className="dashboard-surface">
@@ -238,6 +319,13 @@ function ClassroomsPage() {
                           Sửa
                         </Button>
                       )}
+                      <Button
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={() => void handleCopyClassroomCode(classroom.code)}
+                      >
+                        Copy mã lớp
+                      </Button>
                       <Tag color="blue" className="font-mono">
                         Mã lớp: {classroom.code}
                       </Tag>
@@ -255,7 +343,6 @@ function ClassroomsPage() {
         open={modalOpen}
 
         className="classroom-modal-square"
-        title={editingClassroom ? "Sua lop hoc" : "Tao lop hoc"}
 
         title={
           <Space>
@@ -289,7 +376,6 @@ function ClassroomsPage() {
         open={joinModalOpen}
 
         className="classroom-modal-square"
-        title="Tham gia lop hoc"
 
         title={
           <Space>

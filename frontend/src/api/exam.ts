@@ -12,7 +12,11 @@ export interface ExamDetail {
   id: number;
   title: string;
   description: string;
+  maxAttempts?: number;
   timeLimitMinutes?: number;
+  dueAt?: string | null;
+  remainingAttempts?: number | null;
+  canManage?: boolean | null;
   questions: Question[];
 }
 
@@ -28,6 +32,7 @@ export interface SubmitResponse {
   submitTime: string;
   correctAnswersCount: number;
   totalQuestionsCount: number;
+  remainingAttempts?: number | null;
 }
 
 export interface HistoryResponse {
@@ -53,16 +58,11 @@ const parseQuestionOptions = (question: Question): Question => {
 
 export const examApi = {
   getExamDetail: async (examId: string | number): Promise<ExamDetail | null> => {
-    try {
-      const res = await api.get(`/api/exams/${examId}`);
-      return {
-        ...res.data,
-        questions: Array.isArray(res.data?.questions) ? res.data.questions.map(parseQuestionOptions) : [],
-      };
-    } catch (error) {
-      console.error("Error fetching exam:", error);
-      return null;
-    }
+    const res = await api.get(`/api/exams/${examId}`);
+    return {
+      ...res.data,
+      questions: Array.isArray(res.data?.questions) ? res.data.questions.map(parseQuestionOptions) : [],
+    };
   },
 
   submitExam: async (examId: string | number, answers: AnswerPayload[]): Promise<SubmitResponse | null> => {

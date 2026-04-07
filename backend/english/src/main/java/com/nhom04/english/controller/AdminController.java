@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final UserRepository userRepository;
-    private final classroomRepository classroomRepository;
+    private final ClassroomRepository classroomRepository;
     private final AssignmentRepository assignmentRepository;
     private final SubmissionRepository submissionRepository;
 
@@ -64,7 +64,7 @@ public class AdminController {
         long totalStudents = userRepository.countByRole_Name(Role.RoleName.STUDENT);
         long totalAdmins = userRepository.countByRole_Name(Role.RoleName.ADMIN);
         long totalClassrooms = classroomRepository.count();
-        long totalAssignments = assignmentRepository.count();
+        long totalAssignments = assignmentRepository.countByDeletedAtIsNull();
         long totalSubmissions = submissionRepository.count();
         long gradedSubmissions = submissionRepository.findAll().stream()
                 .filter(s -> s.getTeacherFeedback() != null && !s.getTeacherFeedback().isBlank())
@@ -104,7 +104,7 @@ public class AdminController {
         String[] monthLabels = {"T1", "T2", "T3", "T4", "T5", "T6",
                                 "T7", "T8", "T9", "T10", "T11", "T12"};
 
-        return java.util.IntStream.rangeClosed(0, 11)
+        return java.util.stream.IntStream.rangeClosed(0, 11)
                 .mapToObj(i -> {
                     LocalDate monthStart = today.minusMonths(11 - i).withDayOfMonth(1);
                     LocalDate monthEnd = monthStart.plusMonths(1);
@@ -133,14 +133,14 @@ public class AdminController {
         String[] monthLabels = {"T1", "T2", "T3", "T4", "T5", "T6",
                                 "T7", "T8", "T9", "T10", "T11", "T12"};
 
-        return java.util.IntStream.rangeClosed(0, 11)
+        return java.util.stream.IntStream.rangeClosed(0, 11)
                 .mapToObj(i -> {
                     LocalDate monthStart = today.minusMonths(11 - i).withDayOfMonth(1);
                     LocalDate monthEnd = monthStart.plusMonths(1);
                     LocalDateTime start = monthStart.atStartOfDay();
                     LocalDateTime end = monthEnd.atStartOfDay();
 
-                    long assignments = assignmentRepository.findAll().stream()
+                    long assignments = assignmentRepository.findAllByDeletedAtIsNull().stream()
                             .filter(a -> a.getCreatedAt() != null &&
                                     !a.getCreatedAt().isBefore(start) && a.getCreatedAt().isBefore(end))
                             .count();

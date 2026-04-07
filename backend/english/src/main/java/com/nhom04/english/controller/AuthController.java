@@ -67,21 +67,27 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            String token = authService.login(request);
 
-        String token = authService.login(request);
+            ResponseCookie cookie = ResponseCookie.from("token", token)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(60 * 60 * 3)
+                    .build();
 
-        ResponseCookie cookie = ResponseCookie.from("token", token)
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(60 * 60 * 3)
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of(
-                        "success", true,
-                        "token", token));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(Map.of(
+                            "success", true,
+                            "token", token));
+        } catch (org.springframework.web.server.ResponseStatusException exception) {
+            return ResponseEntity.status(exception.getStatusCode())
+                    .body(Map.of(
+                            "success", false,
+                            "message", exception.getReason() == null ? "Đăng nhập thất bại" : exception.getReason()));
+        }
     }
 
     @PostMapping("/refresh-token")

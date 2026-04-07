@@ -3,7 +3,7 @@ import { AudioOutlined, RiseOutlined, SoundOutlined, TeamOutlined } from "@ant-d
 import { Alert, Button, Card, Col, Empty, Row, Skeleton, Space, Statistic, Tag, Typography } from "antd";
 import { Link } from "react-router-dom";
 import api from "@/utils/axiosClient";
-import type { classroom as Classroom } from "@/types/classroom";
+import type { Classroom } from "@/types/classroom";
 
 const { Paragraph, Text, Title } = Typography;
 

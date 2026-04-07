@@ -28,7 +28,7 @@ public class Submission {
     private User student;
 
     @Column(nullable = false)
-    private Integer totalScore;
+    private Double totalScore;
 
     @Column(nullable = false)
     private Integer correctAnswersCount;
@@ -42,11 +42,20 @@ public class Submission {
     @Column(length = 1000)
     private String teacherFeedback;
 
+    @Column(name = "submitted_at", nullable = false, updatable = false)
+    private LocalDateTime submittedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        if (submittedAt == null) {
+            submittedAt = now;
+        }
+        if (createdAt == null) {
+            createdAt = now;
+        }
     }
 }

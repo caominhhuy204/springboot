@@ -12,7 +12,8 @@ import java.util.List;
 
 @Repository
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
-    List<Submission> findByStudentOrderBySubmittedAtDesc(User student);
+    List<Submission> findByStudentOrderByCreatedAtDesc(User student);
+    long countByAssignmentIdAndStudentId(Long assignmentId, Long studentId);
 
     long count();
 

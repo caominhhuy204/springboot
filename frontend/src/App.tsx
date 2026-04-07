@@ -22,6 +22,7 @@ import PronunciationHubPage from './modules/pronunciation/pages/PronunciationHub
 import PronunciationExercisesPage from './modules/pronunciation/pages/PronunciationExercisesPage'
 import PronunciationExerciseDetailPage from './modules/pronunciation/pages/PronunciationExerciseDetailPage'
 import AssignmentPage from './modules/teacher/pages/AssignmentPage'
+import StudentAssignmentsPage from './modules/exam/pages/StudentAssignmentsPage'
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/classrooms" element={<ClassroomsPage />} />
+            <Route path="/assignments" element={<StudentAssignmentsPage />} />
             <Route path="/classrooms/:id" element={<ClassroomDetailPage />} />
             <Route path="/classrooms/:classroomId/progress" element={<ClassroomProgressPage />} />
             <Route path="/exams/:id/take" element={<ExamTakingPage />} />

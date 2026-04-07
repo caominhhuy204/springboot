@@ -1,9 +1,12 @@
 package com.nhom04.english.security;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -27,12 +30,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final String frontendUrl;
+    private final String oauth2SuccessPath;
 
-    public OAuth2SuccessHandler(JwtService jwtService, UserRepository userRepository, RoleRepository roleRepository, @org.springframework.context.annotation.Lazy PasswordEncoder passwordEncoder) {
+    public OAuth2SuccessHandler(
+            JwtService jwtService,
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            @org.springframework.context.annotation.Lazy PasswordEncoder passwordEncoder,
+            @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl,
+            @Value("${app.oauth2-success-path:/oauth2-success}") String oauth2SuccessPath) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.frontendUrl = frontendUrl;
+        this.oauth2SuccessPath = oauth2SuccessPath;
     }
 
     @Override
@@ -66,6 +79,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole().getName().name(), user.getFullname());
 
-        response.sendRedirect("http://localhost:5173/oauth2-success?token=" + token);
+        String redirectUrl = normalizeBaseUrl(frontendUrl)
+                + normalizePath(oauth2SuccessPath)
+                + "?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+        response.sendRedirect(redirectUrl);
+    }
+
+    private String normalizeBaseUrl(String url) {
+        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    private String normalizePath(String path) {
+        return path.startsWith("/") ? path : "/" + path;
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import com.nhom04.english.dto.ClassroomRequest;
+import com.nhom04.english.dto.ClassroomInvitationResponse;
 import com.nhom04.english.dto.ClassroomResponse;
 import com.nhom04.english.dto.ClassroomStudentResponse;
 import com.nhom04.english.dto.ClassroomTeacherResponse;
@@ -116,6 +117,7 @@ public class ClassroomService {
         }
 
         classroom.setTeacher(teacher);
+        classroom.getTeachers().removeIf(existing -> Objects.equals(existing.getId(), teacher.getId()));
         classroom.getInvitedTeachers().remove(teacher);
         return toResponse(classroomRepository.save(classroom), false);
     }
@@ -164,9 +166,55 @@ public class ClassroomService {
         if (classroom.getTeacher() != null && Objects.equals(classroom.getTeacher().getId(), teacher.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Teacher already assigned to classroom");
         }
+        if (classroom.getTeachers().stream().anyMatch(existing -> Objects.equals(existing.getId(), teacher.getId()))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Teacher already joined classroom");
+        }
 
         classroom.getInvitedTeachers().add(teacher);
         return toResponse(classroomRepository.save(classroom), false);
+    }
+
+    public ClassroomResponse acceptInvitation(Long classroomId, String currentUserEmail) {
+        User currentUser = getUserByEmail(currentUserEmail);
+        Classroom classroom = getClassroomEntity(classroomId);
+
+        RoleName roleName = currentUser.getRole().getName();
+        if (roleName == RoleName.STUDENT) {
+            if (classroom.getInvitedStudents().stream().noneMatch(user -> Objects.equals(user.getId(), currentUser.getId()))) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student invitation not found");
+            }
+
+            classroom.getInvitedStudents().removeIf(user -> Objects.equals(user.getId(), currentUser.getId()));
+            classroom.getStudents().add(currentUser);
+            return toResponse(classroomRepository.save(classroom), true);
+        }
+
+        if (roleName == RoleName.TEACHER) {
+            if (classroom.getInvitedTeachers().stream().noneMatch(user -> Objects.equals(user.getId(), currentUser.getId()))) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Teacher invitation not found");
+            }
+
+            classroom.getInvitedTeachers().removeIf(user -> Objects.equals(user.getId(), currentUser.getId()));
+            if (classroom.getTeacher() == null) {
+                classroom.setTeacher(currentUser);
+            } else if (!Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+                classroom.getTeachers().add(currentUser);
+            }
+            return toResponse(classroomRepository.save(classroom), false);
+        }
+
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only STUDENT or TEACHER can accept classroom invitation");
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClassroomInvitationResponse> getMyInvitations(String currentUserEmail) {
+        User currentUser = getUserByEmail(currentUserEmail);
+
+        return classroomRepository.findAll().stream()
+                .filter(classroom -> isInvitedToClassroom(classroom, currentUser))
+                .sorted(Comparator.comparing(Classroom::getId))
+                .map(classroom -> toInvitationResponse(classroom, currentUser))
+                .toList();
     }
 
     public ClassroomResponse removeStudent(Long classroomId, Long studentId) {
@@ -183,7 +231,16 @@ public class ClassroomService {
 
         Set<Classroom> classrooms = switch (currentUser.getRole().getName()) {
             case ADMIN -> new HashSet<>(classroomRepository.findAll());
-            case TEACHER -> currentUser.getTeachingClassrooms() != null ? currentUser.getTeachingClassrooms() : Set.of();
+            case TEACHER -> {
+                Set<Classroom> managed = new HashSet<>();
+                if (currentUser.getTeachingClassrooms() != null) {
+                    managed.addAll(currentUser.getTeachingClassrooms());
+                }
+                if (currentUser.getManagedClassrooms() != null) {
+                    managed.addAll(currentUser.getManagedClassrooms());
+                }
+                yield managed;
+            }
             case STUDENT -> currentUser.getJoinedClassrooms() != null ? currentUser.getJoinedClassrooms() : Set.of();
         };
 
@@ -307,8 +364,7 @@ public class ClassroomService {
             return;
         }
 
-        if (roleName == RoleName.TEACHER && classroom.getTeacher() != null
-                && Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+        if (roleName == RoleName.TEACHER && isTeacherManager(classroom, currentUser)) {
             return;
         }
 
@@ -321,8 +377,7 @@ public class ClassroomService {
             return;
         }
 
-        if (roleName == RoleName.TEACHER && classroom.getTeacher() != null
-                && Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+        if (roleName == RoleName.TEACHER && isTeacherManager(classroom, currentUser)) {
             return;
         }
 
@@ -354,6 +409,39 @@ public class ClassroomService {
                 .build();
     }
 
+    private boolean isTeacherManager(Classroom classroom, User currentUser) {
+        if (classroom.getTeacher() != null && Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+            return true;
+        }
+
+        return classroom.getTeachers().stream()
+                .anyMatch(teacher -> Objects.equals(teacher.getId(), currentUser.getId()));
+    }
+
+    private boolean isInvitedToClassroom(Classroom classroom, User currentUser) {
+        return switch (currentUser.getRole().getName()) {
+            case STUDENT -> classroom.getInvitedStudents().stream()
+                    .anyMatch(student -> Objects.equals(student.getId(), currentUser.getId()));
+            case TEACHER -> classroom.getInvitedTeachers().stream()
+                    .anyMatch(teacher -> Objects.equals(teacher.getId(), currentUser.getId()));
+            default -> false;
+        };
+    }
+
+    private ClassroomInvitationResponse toInvitationResponse(Classroom classroom, User currentUser) {
+        User invitedBy = classroom.getTeacher();
+        return ClassroomInvitationResponse.builder()
+                .classroomId(classroom.getId())
+                .classroomCode(classroom.getCode())
+                .classroomName(classroom.getName())
+                .classroomDescription(classroom.getDescription())
+                .inviteType(currentUser.getRole().getName().name())
+                .invitedById(invitedBy != null ? invitedBy.getId() : null)
+                .invitedByName(invitedBy != null ? invitedBy.getFullname() : null)
+                .invitedByEmail(invitedBy != null ? invitedBy.getEmail() : null)
+                .build();
+    }
+
             private List<ClassroomStudentResponse> mapStudentsWithInvite(Classroom classroom) {
             List<ClassroomStudentResponse> activeStudents = classroom.getStudents().stream()
                 .sorted(Comparator.comparing(User::getId))
@@ -371,13 +459,22 @@ public class ClassroomService {
             }
 
             private List<ClassroomTeacherResponse> mapTeachersWithInvite(Classroom classroom) {
-            List<ClassroomTeacherResponse> activeTeachers = classroom.getTeacher() == null
-                ? List.of()
-                : List.of(toTeacherResponse(classroom.getTeacher(), false));
+            List<ClassroomTeacherResponse> activeTeachers = java.util.stream.Stream.concat(
+                    classroom.getTeacher() == null
+                            ? java.util.stream.Stream.empty()
+                            : java.util.stream.Stream.of(classroom.getTeacher()),
+                    classroom.getTeachers().stream()
+                        .filter(teacher -> classroom.getTeacher() == null
+                            || !Objects.equals(teacher.getId(), classroom.getTeacher().getId())))
+                .sorted(Comparator.comparing(User::getId))
+                .map(teacher -> toTeacherResponse(teacher, false))
+                .toList();
 
             List<ClassroomTeacherResponse> invitedTeachers = classroom.getInvitedTeachers().stream()
                 .filter(invited -> classroom.getTeacher() == null
                     || !Objects.equals(invited.getId(), classroom.getTeacher().getId()))
+                .filter(invited -> classroom.getTeachers().stream()
+                    .noneMatch(active -> Objects.equals(active.getId(), invited.getId())))
                 .sorted(Comparator.comparing(User::getId))
                 .map(teacher -> toTeacherResponse(teacher, true))
                 .toList();

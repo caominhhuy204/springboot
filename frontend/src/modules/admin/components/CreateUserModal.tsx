@@ -7,7 +7,6 @@ import {
   Modal,
   message,
   Space,
-  Typography,
 } from "antd";
 import {
   UserOutlined,
@@ -17,8 +16,6 @@ import {
 } from "@ant-design/icons";
 import api from "@/utils/axiosClient";
 import type { RegisterFormValues } from "@/utils/registerSchema";
-
-const { Text } = Typography;
 
 interface CreateUserModalProps {
   open: boolean;

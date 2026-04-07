@@ -1,87 +1,83 @@
-# NHOM04 - Hướng Dẫn Chạy Dự Án Bằng Docker Compose
+# LearnEng
 
-## 1. Yêu cầu
-- Cài `Docker Desktop` (hoặc Docker Engine + Docker Compose plugin).
-- Bật Docker trước khi chạy lệnh.
+## Local run
 
-## 2. Cấu trúc hiện tại
-- `backend/english`: Spring Boot (Java 17, Maven).
-- `frontend`: trang tĩnh `hello.html` chạy qua Nginx.
-- `docker-compose.yml`: chạy toàn bộ stack (`mysql`, `backend`, `frontend`).
+### Backend
 
-## 3. Chạy dự án
-Từ thư mục gốc `D:\nhom04`, chạy:
+From [backend/english](/D:/OneDrive/Máy%20tính/springboot/backend/english):
 
-```bash
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Default local values are already wired in `application.yaml`:
+
+- backend: `http://localhost:8080`
+- frontend: `http://localhost:5173`
+- mysql: `localhost:3306`
+- db: `mydb`
+- db user: `root`
+- db password: `123456`
+
+### Frontend
+
+From [frontend](/D:/OneDrive/Máy%20tính/springboot/frontend):
+
+```powershell
+npm install
+npm run dev
+```
+
+Default local frontend URL assumptions:
+
+- frontend app: `http://localhost:5173`
+- backend API: `http://localhost:8080`
+- Google auth entry: `http://localhost:8080/oauth2/authorization/google`
+
+## Environment variables
+
+The project now supports environment overrides while preserving local defaults.
+
+### Backend
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `JWT_SECRET`
+- `JWT_EXPIRATION`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI`
+- `FRONTEND_URL`
+- `CORS_ALLOWED_ORIGINS`
+- `PRONUNCIATION_STORAGE_DIR`
+
+### Frontend
+
+- `VITE_API_BASE_URL`
+- `VITE_GOOGLE_AUTH_URL`
+- `VITE_DEV_PROXY_TARGET`
+
+## Docker Compose
+
+From the project root:
+
+```powershell
 docker compose up -d --build
 ```
 
-Nếu cổng `3306` đang bị chiếm, chạy với port khác cho MySQL:
+Default compose URLs:
 
-```bash
-# PowerShell
-$env:MYSQL_HOST_PORT=13306
-docker compose up -d --build
-```
+- frontend: `http://localhost:3000`
+- backend: `http://localhost:8080`
+- mysql: `localhost:3306`
 
-## 4. Truy cập dịch vụ
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8080
-- MySQL: `localhost:3306`
+For production-like deploy, put your real values in `.env` based on `.env.example`.
 
-Thông tin MySQL mặc định:
-- Database: `mydb`
-- Username: `root`
-- Password: `123456`
+## Notes before public deploy
 
-Nếu bạn set `MYSQL_HOST_PORT`, MySQL sẽ chạy theo port đó (ví dụ `localhost:13306`).
-
-## 5. Lệnh Docker Compose thường dùng
-
-Xem trạng thái container:
-
-```bash
-docker compose ps
-```
-
-Xem log:
-
-```bash
-docker compose logs -f
-```
-
-Dừng và xóa container:
-
-```bash
-docker compose down
-```
-
-Dừng và xóa cả dữ liệu MySQL volume:
-
-```bash
-docker compose down -v
-```
-
-## 6. Cấu hình backend với database
-Backend đọc biến môi trường trong `application.yaml`:
-- `DB_HOST` (mặc định: `localhost`)
-- `DB_PORT` (mặc định: `3306`)
-- `DB_NAME` (mặc định: `mydb`)
-- `DB_USERNAME` (mặc định: `root`)
-- `DB_PASSWORD` (mặc định: `123456`)
-
-Khi chạy bằng Docker Compose, các biến này đã được set sẵn để backend kết nối service `mysql`.
-
-## 7. Khi code thay đổi
-- Nếu sửa backend/frontend và muốn build lại image:
-
-```bash
-docker compose up -d --build
-```
-
-- Nếu chỉ restart nhanh service:
-
-```bash
-docker compose restart backend
-docker compose restart frontend
-```
+- The current Google OAuth client id/secret and JWT secret still have local-safe defaults for compatibility.
+- Before a real public deploy, rotate those secrets and provide them only through environment variables.
+- Pronunciation audio is stored on disk. In Docker, keep the mounted volume so uploads survive restarts.

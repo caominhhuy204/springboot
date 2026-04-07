@@ -75,6 +75,12 @@ public class ClassroomController {
         return ResponseEntity.ok(classroomService.getAllClassrooms(authentication.getName()));
     }
 
+    @GetMapping("/invitations")
+    @PreAuthorize("hasAnyRole('STUDENT','TEACHER')")
+    public ResponseEntity<?> getMyInvitations(Authentication authentication) {
+        return ResponseEntity.ok(classroomService.getMyInvitations(authentication.getName()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getClassroomDetail(@PathVariable Long id, Authentication authentication) {
         return ResponseEntity.ok(classroomService.getClassroom(id, authentication.getName()));
@@ -106,6 +112,12 @@ public class ClassroomController {
             @PathVariable Long teacherId,
             Authentication authentication) {
         return ResponseEntity.ok(classroomService.inviteTeacher(id, teacherId, authentication.getName()));
+    }
+
+    @PostMapping("/{id}/accept-invitation")
+    @PreAuthorize("hasAnyRole('STUDENT','TEACHER')")
+    public ResponseEntity<?> acceptInvitation(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(classroomService.acceptInvitation(id, authentication.getName()));
     }
 
     @GetMapping("/teachers")

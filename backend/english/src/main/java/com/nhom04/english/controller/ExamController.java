@@ -40,8 +40,8 @@ public class ExamController {
     }
 
     @GetMapping("/classrooms/{id}/progress")
-    public ResponseEntity<List<Map<String, Object>>> getClassroomProgress(@PathVariable Long id) {
-        return ResponseEntity.ok(examService.getClassroomProgress(id));
+    public ResponseEntity<List<Map<String, Object>>> getClassroomProgress(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(examService.getClassroomProgress(id, authentication.getName()));
     }
 
     @PostMapping("/submissions/{id}/feedback")

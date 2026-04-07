@@ -3,14 +3,14 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_DATABASE: ${DB_NAME:-mydb}
     ports:
       - "${MYSQL_HOST_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -25,14 +25,21 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: mydb
-      DB_USERNAME: root
-      DB_PASSWORD: 123456
-      APP_AUDIO_UPLOAD_DIR: /app/uploads/audio
+      DB_NAME: ${DB_NAME:-mydb}
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-123456}
+      JWT_SECRET: ${JWT_SECRET:-my_super_secret_key_123456789_at_least_32_chars}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-529995411008-od5909364pu59dk5hs54kgql6b5b71bm.apps.googleusercontent.com}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-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}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8080/login/oauth2/code/google}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173}
+      PRONUNCIATION_STORAGE_DIR: ${PRONUNCIATION_STORAGE_DIR:-/app/uploads/pronunciation}
     ports:
       - "${BACKEND_HOST_PORT:-8080}:8080"
     volumes:
-      - uploads_audio:/app/uploads/audio
+      - uploads_pronunciation:/app/uploads/pronunciation
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8080'"]
       interval: 10s
@@ -43,6 +50,9 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+        VITE_GOOGLE_AUTH_URL: ${VITE_GOOGLE_AUTH_URL:-http://localhost:8080/oauth2/authorization/google}
     restart: unless-stopped
     depends_on:
       backend:
@@ -52,4 +62,4 @@ services:
 
 volumes:
   mysql_data:
-  uploads_audio:
+  uploads_pronunciation:

@@ -2,6 +2,7 @@ package com.nhom04.english.dto;
 
 import com.nhom04.english.entity.QuestionType;
 import lombok.Data;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -9,6 +10,11 @@ public class AssignmentDto {
     private Long id;
     private String title;
     private String description;
+    private Integer maxAttempts;
+    private Integer timeLimitMinutes;
+    private LocalDateTime dueAt;
+    private Integer remainingAttempts;
+    private Boolean canManage;
     private List<ClassroomDto> classrooms;
     private List<QuestionDto> questions;
 }

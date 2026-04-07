@@ -245,31 +245,6 @@ function ClassroomDetailPage() {
             </Card>
           </Space>
 
-          <Card title="Sinh viên trong lớp" className="dashboard-surface" loading={loading}>
-            <div className="mb-3">
-              <Text type="secondary">
-                Sinh viên tham gia lớp bằng mã lớp <strong className="text-sky-600">{classroom?.code}</strong>
-              </Text>
-            </div>
-
-            {students.length === 0 ? (
-              <Empty description="Chưa có sinh viên nào trong lớp" />
-            ) : (
-              <List
-                dataSource={students}
-                pagination={{ pageSize: 10 }}
-                renderItem={(student: ClassroomStudent) => (
-                  <List.Item>
-                    <Space size={12} align="center">
-                      <Avatar className="portal-avatar">{getInitials(student.fullname || student.username)}</Avatar>
-                      <Text strong>{student.fullname || student.username}</Text>
-                    </Space>
-                  </List.Item>
-                )}
-              />
-            )}
-          </Card>
-
         </Col>
       </Row>
 

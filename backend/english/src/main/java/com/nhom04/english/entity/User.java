@@ -75,6 +75,12 @@ public class User {
     @EqualsAndHashCode.Exclude
     private Set<Classroom> teachingClassrooms = new HashSet<>();
 
+    @ManyToMany(mappedBy = "teachers")
+    @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Classroom> managedClassrooms = new HashSet<>();
+
     @ManyToMany(mappedBy = "students")
     @JsonIgnore
     @ToString.Exclude

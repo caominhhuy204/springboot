@@ -1,10 +1,8 @@
 import {
-  BellOutlined,
   BookOutlined,
   CalendarOutlined,
   DashboardOutlined,
   LogoutOutlined,
-  SearchOutlined,
   SoundOutlined,
   TeamOutlined,
   UserOutlined,
@@ -14,7 +12,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Avatar, Badge, Button, Input, Layout, Menu, Space, Typography } from "antd";
+import { Avatar, Button, Layout, Menu, Space, Typography } from "antd";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useUser } from "@/context/authContext";
@@ -34,6 +32,9 @@ function AppShell() {
     { key: "/progress", icon: <LineChartOutlined />, label: <Link to="/progress">Tiến độ học tập</Link> },
     { key: "/pronunciation", icon: <SoundOutlined />, label: <Link to="/pronunciation">Phát âm</Link> },
     { key: "/profile", icon: <UserOutlined />, label: <Link to="/profile">Hồ sơ cá nhân</Link> },
+    ...(user?.role === "STUDENT"
+      ? [{ key: "/assignments", icon: <FileTextOutlined />, label: <Link to="/assignments">Bài tập của tôi</Link> }]
+      : []),
     ...(user?.role === "ADMIN" || user?.role === "TEACHER"
       ? [{ key: "/teacher/assignments", icon: <FileTextOutlined />, label: <Link to="/teacher/assignments">Quản lý bài tập</Link> }]
       : []),
@@ -52,6 +53,8 @@ function AppShell() {
       ? "/exams/history"
     : location.pathname.startsWith("/teacher/assignments")
       ? "/teacher/assignments"
+    : location.pathname.startsWith("/assignments")
+      ? "/assignments"
     : location.pathname.startsWith("/profile")
       ? "/profile"
       : "/";

@@ -268,8 +268,7 @@ public class PronunciationService {
             return;
         }
 
-        if (roleName == RoleName.TEACHER && classroom.getTeacher() != null
-                && Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+        if (roleName == RoleName.TEACHER && isTeacherManager(classroom, currentUser)) {
             return;
         }
 
@@ -282,8 +281,7 @@ public class PronunciationService {
             return;
         }
 
-        if (roleName == RoleName.TEACHER && classroom.getTeacher() != null
-                && Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+        if (roleName == RoleName.TEACHER && isTeacherManager(classroom, currentUser)) {
             return;
         }
 
@@ -329,6 +327,15 @@ public class PronunciationService {
         }
 
         ensureCanViewExercise(submission.getExercise(), currentUser);
+    }
+
+    private boolean isTeacherManager(Classroom classroom, User currentUser) {
+        if (classroom.getTeacher() != null && Objects.equals(classroom.getTeacher().getId(), currentUser.getId())) {
+            return true;
+        }
+
+        return classroom.getTeachers().stream()
+                .anyMatch(teacher -> Objects.equals(teacher.getId(), currentUser.getId()));
     }
 
     private StoredAudio storeAudio(PronunciationExercise exercise, User student, MultipartFile audio) {

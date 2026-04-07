@@ -1,43 +1,22 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  ClockCircleOutlined,
-  CheckCircleOutlined,
-  BarChartOutlined,
-  FileTextOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
-import {
-  Card,
-  Space,
-  Table,
-  Tag,
-  Typography,
-  Statistic,
-  Row,
-  Col,
-  Spin,
-  Segmented,
-  Button,
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { BarChartOutlined, ClockCircleOutlined, EyeOutlined, FileTextOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Row, Space, Spin, Statistic, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { examApi, HistoryResponse } from "@/api/exam";
 import { useNavigate } from "react-router-dom";
+import { examApi, HistoryResponse } from "@/api/exam";
 
-const { Title, Text } = Typography;
-
-type FilterStatus = "ALL" | "PENDING" | "REVIEWED";
+const { Text, Title } = Typography;
 
 function getScoreColor(score: number) {
-  if (score >= 8) return "emerald";
-  if (score >= 5) return "blue";
+  if (score > 8) return "green";
+  if (score >= 6) return "gold";
   return "red";
 }
 
 function getScoreLabel(score: number) {
-  if (score >= 8) return "Xuất sắc";
-  if (score >= 7) return "Tốt";
-  if (score >= 5) return "Đạt";
-  return "Chưa đạt";
+  if (score > 8) return "Giỏi";
+  if (score >= 6) return "Khá";
+  return "Yếu";
 }
 
 function formatSubmitTime(time: string) {
@@ -53,7 +32,6 @@ function formatSubmitTime(time: string) {
 const ExamHistoryPage: React.FC = () => {
   const [history, setHistory] = useState<HistoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterStatus>("ALL");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,26 +43,16 @@ const ExamHistoryPage: React.FC = () => {
         setLoading(false);
       }
     };
+
     void fetchHistory();
   }, []);
 
-  // Stats summary
   const totalExams = history.length;
   const avgScore =
     totalExams > 0
-      ? (history.reduce((sum, h) => sum + h.totalScore, 0) / totalExams).toFixed(1)
+      ? (history.reduce((sum, item) => sum + (item.totalScore ?? 0), 0) / totalExams).toFixed(1)
       : "0";
-  const passedCount = history.filter((h) => h.totalScore >= 5).length;
-
-  // Filtered data
-  const pendingCount = history.filter((h) => !h.teacherFeedback).length;
-  const reviewedCount = history.filter((h) => !!h.teacherFeedback).length;
-
-  const filteredHistory = useMemo(() => {
-    if (filter === "PENDING") return history.filter((h) => !h.teacherFeedback);
-    if (filter === "REVIEWED") return history.filter((h) => !!h.teacherFeedback);
-    return history;
-  }, [history, filter]);
+  const passedCount = history.filter((item) => (item.totalScore ?? 0) >= 5).length;
 
   const columns: ColumnsType<HistoryResponse> = [
     {
@@ -94,7 +62,9 @@ const ExamHistoryPage: React.FC = () => {
       render: (text) => (
         <Space size={8}>
           <FileTextOutlined className="text-sky-500" />
-          <Text strong className="text-slate-700">{text || "Bài thi mẫu"}</Text>
+          <Text strong className="text-slate-700">
+            {text || "Bài thi"}
+          </Text>
         </Space>
       ),
     },
@@ -102,70 +72,29 @@ const ExamHistoryPage: React.FC = () => {
       title: "Điểm số",
       dataIndex: "totalScore",
       key: "totalScore",
-      width: 160,
+      width: 180,
       render: (score: number) => {
-        const color = getScoreColor(score);
-        const label = getScoreLabel(score);
+        const normalizedScore = score ?? 0;
         return (
           <Space size={8}>
             <Tag
-              color={color}
-              className="!font-bold !text-sm !px-3 !py-1 !rounded-lg !min-w-[60px] !text-center"
+              color={getScoreColor(normalizedScore)}
+              className="!min-w-[70px] !rounded-lg !px-3 !py-1 !text-center !text-sm !font-bold"
             >
-              {score} điểm
+              {normalizedScore} điểm
             </Tag>
             <Text type="secondary" style={{ fontSize: 12 }}>
-              {label}
+              {getScoreLabel(normalizedScore)}
             </Text>
           </Space>
         );
       },
     },
     {
-      title: "Trạng thái",
-      key: "status",
-      width: 140,
-      align: "center" as const,
-      render: (_: unknown, record: HistoryResponse) => {
-        const isReviewed = !!record.teacherFeedback;
-        return (
-          <Tag
-            color={isReviewed ? "green" : "orange"}
-            className="!text-sm !px-3 !py-1 !rounded-lg"
-          >
-            {isReviewed ? (
-              <Space size={4}>
-                <CheckCircleOutlined />
-                Đã chấm
-              </Space>
-            ) : (
-              <Space size={4}>
-                <ClockCircleOutlined />
-                Chờ chấm
-              </Space>
-            )}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Phản hồi",
-      dataIndex: "teacherFeedback",
-      key: "teacherFeedback",
-      render: (feedback: string | null) =>
-        feedback ? (
-          <Text type="secondary" className="italic text-sm">
-            {feedback}
-          </Text>
-        ) : (
-          <Text type="secondary">—</Text>
-        ),
-    },
-    {
       title: "Thời gian nộp",
       dataIndex: "submitTime",
       key: "submitTime",
-      width: 180,
+      width: 190,
       render: (time: string) => (
         <Space size={4} className="text-slate-500">
           <ClockCircleOutlined />
@@ -179,7 +108,7 @@ const ExamHistoryPage: React.FC = () => {
       title: "Xem chi tiết",
       key: "action",
       width: 120,
-      align: "center" as const,
+      align: "center",
       render: (_: unknown, record: HistoryResponse) => (
         <Button
           type="link"
@@ -193,15 +122,9 @@ const ExamHistoryPage: React.FC = () => {
     },
   ];
 
-  // Row color based on status
-  const getRowClassName = (record: HistoryResponse, _index: number): string => {
-    const isReviewed = !!record.teacherFeedback;
-    return isReviewed ? "exam-history-row-reviewed" : "exam-history-row-pending";
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px]">
+      <div className="flex min-h-[300px] items-center justify-center">
         <Spin size="large" />
       </div>
     );
@@ -209,62 +132,38 @@ const ExamHistoryPage: React.FC = () => {
 
   return (
     <Space direction="vertical" size={16} className="w-full">
-      {/* ── Header card ── */}
       <Card className="dashboard-surface">
         <Space direction="vertical" size={2}>
           <Title level={3} className="!mb-0 !text-slate-800">
             Lịch sử làm bài
           </Title>
-          <Text type="secondary">
-            Theo dõi toàn bộ bài thi đã nộp và kết quả của bạn
-          </Text>
+          <Text type="secondary">Theo dõi toàn bộ bài thi đã nộp và kết quả của bạn</Text>
         </Space>
       </Card>
 
-      {/* ── Stats summary ── */}
       {totalExams > 0 && (
         <Row gutter={[14, 14]}>
           <Col xs={24} sm={8}>
             <Card className="dashboard-stat-card">
               <div className="dashboard-stat-stripe blue" />
-              <Space align="start" className="w-full justify-between">
-                <Statistic
-                  title="Tổng bài thi"
-                  value={totalExams}
-                  prefix={<FileTextOutlined className="text-blue-500" />}
-                />
-              </Space>
+              <Statistic title="Tổng bài thi" value={totalExams} prefix={<FileTextOutlined className="text-blue-500" />} />
             </Card>
           </Col>
           <Col xs={24} sm={8}>
             <Card className="dashboard-stat-card">
               <div className="dashboard-stat-stripe score" />
-              <Space align="start" className="w-full justify-between">
-                <Statistic
-                  title="Điểm trung bình"
-                  value={Number(avgScore)}
-                  precision={1}
-                  suffix="/ 10"
-                />
-              </Space>
+              <Statistic title="Điểm trung bình" value={Number(avgScore)} precision={1} suffix="/ 10" />
             </Card>
           </Col>
           <Col xs={24} sm={8}>
             <Card className="dashboard-stat-card">
               <div className="dashboard-stat-stripe done" />
-              <Space align="start" className="w-full justify-between">
-                <Statistic
-                  title="Bài đạt (≥ 5 điểm)"
-                  value={passedCount}
-                  suffix={`/ ${totalExams}`}
-                />
-              </Space>
+              <Statistic title="Bài đạt (≥ 5 điểm)" value={passedCount} suffix={`/ ${totalExams}`} />
             </Card>
           </Col>
         </Row>
       )}
 
-      {/* ── Filter + Table ── */}
       <Card
         title={
           <Space size={8}>
@@ -273,26 +172,14 @@ const ExamHistoryPage: React.FC = () => {
             <Tag color="blue">{totalExams}</Tag>
           </Space>
         }
-        extra={
-          <Segmented
-            value={filter}
-            onChange={(val) => setFilter(val as FilterStatus)}
-            options={[
-              { label: `Tất cả (${totalExams})`, value: "ALL" },
-              { label: `Chờ chấm (${pendingCount})`, value: "PENDING" },
-              { label: `Đã chấm (${reviewedCount})`, value: "REVIEWED" },
-            ]}
-          />
-        }
         className="dashboard-surface"
       >
         <Table
-          dataSource={filteredHistory}
+          dataSource={history}
           columns={columns}
           rowKey="submissionId"
           pagination={{ pageSize: 8, showSizeChanger: false }}
           size="middle"
-          rowClassName={getRowClassName}
           locale={{
             emptyText: (
               <Space direction="vertical" className="py-8">
@@ -308,17 +195,6 @@ const ExamHistoryPage: React.FC = () => {
         .dashboard-stat-stripe.blue { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
         .dashboard-stat-stripe.score { background: linear-gradient(90deg, #0ea5e9, #0284c7); }
         .dashboard-stat-stripe.done { background: linear-gradient(90deg, #10b981, #059669); }
-
-        .exam-history-row-reviewed > td {
-          background: #f0fdf4 !important;
-        }
-        .exam-history-row-pending > td {
-          background: #fffbeb !important;
-        }
-        .exam-history-row-reviewed:hover > td,
-        .exam-history-row-pending:hover > td {
-          background: #f8fafc !important;
-        }
       `}</style>
     </Space>
   );

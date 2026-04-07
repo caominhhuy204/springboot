@@ -28,6 +28,17 @@ export interface Classroom {
   students?: ClassroomStudent[] | null;
 }
 
+export interface ClassroomInvitation {
+  classroomId: number;
+  classroomCode: string;
+  classroomName: string;
+  classroomDescription?: string | null;
+  inviteType: "TEACHER" | "STUDENT";
+  invitedById?: number | null;
+  invitedByName?: string | null;
+  invitedByEmail?: string | null;
+}
+
 export interface ClassroomPayload {
   name: string;
   description?: string;

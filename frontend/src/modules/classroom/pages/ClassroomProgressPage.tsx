@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Table, Typography, Button, Modal, Input, message, Space, Tag, Card, Avatar } from "antd";
 import { UserOutlined, EditOutlined, ArrowLeftOutlined } from "@ant-design/icons";
@@ -18,27 +18,34 @@ interface StudentProgress {
 }
 
 const ClassroomProgressPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { classroomId } = useParams<{ classroomId: string }>();
   const [data, setData] = useState<StudentProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentProgress | null>(null);
   const [feedbackText, setFeedbackText] = useState("");
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const loadErrorToastKey = useRef("classroom-progress-load-error");
 
   useEffect(() => {
     void fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [classroomId]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/api/exams/classrooms/${id}/progress`);
+      if (!classroomId) {
+        throw new Error("Classroom id is missing");
+      }
+      const res = await api.get(`/api/exams/classrooms/${classroomId}/progress`);
       setData(res.data);
     } catch (error) {
       console.error("Error fetching classroom progress:", error);
-      message.error("Không thể tải dữ liệu tiến độ");
+      message.error({
+        key: loadErrorToastKey.current,
+        content: "Không thể tải dữ liệu tiến độ",
+      });
     } finally {
       setLoading(false);
     }
@@ -143,7 +150,7 @@ const ClassroomProgressPage: React.FC = () => {
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <Space direction="vertical" size={0}>
             <Link
-              to={`/classrooms/${id}`}
+              to={`/classrooms/${classroomId}`}
               className="flex items-center text-sky-600 hover:text-sky-700 font-medium"
             >
               <ArrowLeftOutlined className="mr-1" /> Quay lại lớp học

@@ -6,8 +6,9 @@ import lombok.Data;
 public class SubmitResponse {
     private Long submissionId;
     private Long examId;
-    private Integer totalScore;
+    private Double totalScore;
     private String submitTime;
     private Integer correctAnswersCount;
     private Integer totalQuestionsCount;
+    private Integer remainingAttempts;
 }

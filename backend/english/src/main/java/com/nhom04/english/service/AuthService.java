@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.nhom04.english.dto.ChangePasswordRequest;
 import com.nhom04.english.dto.LoginRequest;
@@ -18,6 +19,8 @@ import com.nhom04.english.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,10 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final EmailService emailService;
+    @Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
+    @Value("${app.reset-password-path:/verify-otp}")
+    private String resetPasswordPath;
 
     public User register(RegisterRequest request) {
 
@@ -53,15 +60,13 @@ public class AuthService {
     }
 
     public String login(LoginRequest request) {
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        System.out.println("Login - Raw pass: " + request.getPassword());
-        System.out.println("Login - DB pass: " + user.getPassword());
+        String identifier = request.getEmail() == null ? "" : request.getEmail().trim();
+        User user = userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByUsername(identifier))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email, username, hoặc mật khẩu không đúng"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email, username, hoặc mật khẩu không đúng");
         }
 
         return jwtService.generateToken(
@@ -138,7 +143,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String link = "http://localhost:5173/verify-otp?token=" + rawToken;
+        String link = buildFrontendUrl(resetPasswordPath) + "?token=" + rawToken;
 
         emailService.sendEmail(
                 user.getEmail(),
@@ -222,5 +227,13 @@ public class AuthService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    private String buildFrontendUrl(String path) {
+        String normalizedBase = frontendUrl.endsWith("/")
+                ? frontendUrl.substring(0, frontendUrl.length() - 1)
+                : frontendUrl;
+        String normalizedPath = path.startsWith("/") ? path : "/" + path;
+        return normalizedBase + normalizedPath;
     }
 }

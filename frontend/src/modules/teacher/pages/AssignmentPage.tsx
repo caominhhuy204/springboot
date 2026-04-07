@@ -1,25 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Space, Popconfirm, Tag, Typography } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, TeamOutlined } from "@ant-design/icons";
+import { Button, Popconfirm, Space, Table, Tag, Typography } from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined, TeamOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 
 import {
+  addQuestionToAssignment,
   AssignmentDto,
-  QuestionDto,
-  getAssignments,
   createAssignment,
-  updateAssignment,
   deleteAssignment,
   deleteQuestion,
-  addQuestionToAssignment,
+  getAssignments,
+  QuestionDto,
+  updateAssignment,
   updateQuestion,
 } from "../../../api/assignmentApi";
 
 import AssignmentModal from "../components/AssignmentModal";
-import QuestionModal from "../components/QuestionModal";
 import AssignClassModal from "../components/AssignClassModal";
+import QuestionModal from "../components/QuestionModal";
 
 const { Title } = Typography;
+
+const formatDateTime = (value?: string | null) => {
+  if (!value) {
+    return "Không đặt hạn";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+};
 
 const AssignmentPage: React.FC = () => {
   const [assignments, setAssignments] = useState<AssignmentDto[]>([]);
@@ -55,7 +74,13 @@ const AssignmentPage: React.FC = () => {
     setIsAssignmentModalOpen(true);
   };
 
-  const handleSaveAssignment = async (values: { title: string; description: string }) => {
+  const handleSaveAssignment = async (values: {
+    title: string;
+    description: string;
+    maxAttempts?: number;
+    timeLimitMinutes?: number | null;
+    dueAt?: string | null;
+  }) => {
     setSavingAssignment(true);
     try {
       if (editingAssignment) {
@@ -67,8 +92,9 @@ const AssignmentPage: React.FC = () => {
       }
       setIsAssignmentModalOpen(false);
       await fetchAssignments();
-    } catch {
-      toast.error("Đã xảy ra lỗi khi lưu bài tập");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? "Đã xảy ra lỗi khi lưu bài tập";
+      toast.error(errorMessage);
     } finally {
       setSavingAssignment(false);
     }
@@ -77,10 +103,11 @@ const AssignmentPage: React.FC = () => {
   const handleDeleteAssignment = async (assignmentId: number) => {
     try {
       await deleteAssignment(assignmentId);
-      toast.success("Xóa bài tập thành công");
+      toast.success("Đã ẩn bài tập và giữ nguyên lịch sử làm bài");
       await fetchAssignments();
-    } catch {
-      toast.error("Không thể xóa bài tập này");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? "Không thể xóa bài tập này";
+      toast.error(errorMessage);
     }
   };
 
@@ -95,6 +122,7 @@ const AssignmentPage: React.FC = () => {
       toast.error("Không xác định được bài tập");
       return;
     }
+
     setSavingQuestion(true);
     try {
       if (editingQuestion?.id) {
@@ -106,8 +134,9 @@ const AssignmentPage: React.FC = () => {
       }
       setIsQuestionModalOpen(false);
       await fetchAssignments();
-    } catch {
-      toast.error("Đã xảy ra lỗi khi lưu câu hỏi");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? "Đã xảy ra lỗi khi lưu câu hỏi";
+      toast.error(errorMessage);
     } finally {
       setSavingQuestion(false);
     }
@@ -118,12 +147,14 @@ const AssignmentPage: React.FC = () => {
       await deleteQuestion(assignmentId, questionId);
       toast.success("Xóa câu hỏi thành công");
       await fetchAssignments();
-    } catch {
-      toast.error("Không thể xóa câu hỏi này");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ?? "Không thể xóa câu hỏi này";
+      toast.error(errorMessage);
     }
   };
 
   const expandedRowRender = (record: AssignmentDto) => {
+    const canManage = !!record.canManage;
     const innerColumns = [
       { title: "ID", dataIndex: "id", key: "id", width: 60 },
       { title: "Nội dung câu hỏi", dataIndex: "content", key: "content" },
@@ -137,17 +168,37 @@ const AssignmentPage: React.FC = () => {
           </Tag>
         ),
       },
-      { title: "Đáp án đúng", dataIndex: "correctAnswer", key: "correctAnswer", render: (answer: string) => <strong>{answer}</strong> },
+      {
+        title: "Điểm câu",
+        dataIndex: "points",
+        key: "points",
+        width: 100,
+      },
+      {
+        title: "Đáp án đúng",
+        dataIndex: "correctAnswer",
+        key: "correctAnswer",
+        render: (answer: string) => <strong>{answer}</strong>,
+      },
       {
         title: "Hành động",
         key: "action",
         render: (_: unknown, question: QuestionDto) => (
           <Space size="small">
-            <Button size="small" icon={<EditOutlined />} onClick={() => handleOpenQuestionModal(record.id, question)}>
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              disabled={!canManage}
+              onClick={() => handleOpenQuestionModal(record.id, question)}
+            >
               Sửa
             </Button>
-            <Popconfirm title="Bạn có chắc muốn xóa câu hỏi này?" onConfirm={() => handleDeleteQuestion(record.id, question.id!)}>
-              <Button size="small" danger icon={<DeleteOutlined />}>
+            <Popconfirm
+              title="Bạn có chắc muốn xóa câu hỏi này?"
+              onConfirm={() => handleDeleteQuestion(record.id, question.id!)}
+              disabled={!canManage}
+            >
+              <Button size="small" danger icon={<DeleteOutlined />} disabled={!canManage}>
                 Xóa
               </Button>
             </Popconfirm>
@@ -157,21 +208,20 @@ const AssignmentPage: React.FC = () => {
     ];
 
     return (
-      <div className="p-4 bg-slate-50 rounded border border-slate-100">
+      <div className="rounded border border-slate-100 bg-slate-50 p-4">
         <Space className="mb-3">
           <strong>Danh sách câu hỏi:</strong>
-          <Button size="small" type="dashed" icon={<PlusOutlined />} onClick={() => handleOpenQuestionModal(record.id)}>
+          <Button
+            size="small"
+            type="dashed"
+            icon={<PlusOutlined />}
+            disabled={!canManage}
+            onClick={() => handleOpenQuestionModal(record.id)}
+          >
             Thêm câu hỏi
           </Button>
         </Space>
-        <Table
-          columns={innerColumns}
-          dataSource={record.questions}
-          pagination={false}
-          rowKey="id"
-          size="small"
-          className="question-table"
-        />
+        <Table columns={innerColumns} dataSource={record.questions} pagination={false} rowKey="id" size="small" />
       </div>
     );
   };
@@ -180,17 +230,32 @@ const AssignmentPage: React.FC = () => {
     { title: "ID", dataIndex: "id", key: "id", width: 80 },
     { title: "Tiêu đề", dataIndex: "title", key: "title" },
     {
+      title: "Thiết lập",
+      key: "settings",
+      render: (_: unknown, record: AssignmentDto) => (
+        <Space wrap>
+          <Tag color="blue">Làm {record.maxAttempts ?? 1} lần</Tag>
+          <Tag color="gold">
+            {record.timeLimitMinutes ? `${record.timeLimitMinutes} phút` : "Không giới hạn giờ"}
+          </Tag>
+          <Tag color={record.dueAt ? "magenta" : "default"}>{formatDateTime(record.dueAt)}</Tag>
+        </Space>
+      ),
+    },
+    {
       title: "Các lớp đã giao",
       key: "classrooms",
       render: (_: unknown, record: AssignmentDto) =>
         record.classrooms?.length ? (
           <Space wrap>
-            {record.classrooms.map((c) => (
-              <Tag key={c.id} color="cyan">{c.name}</Tag>
+            {record.classrooms.map((classroom) => (
+              <Tag key={classroom.id} color="cyan">
+                {classroom.name}
+              </Tag>
             ))}
           </Space>
         ) : (
-          <span className="text-gray-400 text-sm">Chưa giao lớp nào</span>
+          <span className="text-sm text-gray-400">Chưa giao lớp nào</span>
         ),
     },
     {
@@ -203,14 +268,25 @@ const AssignmentPage: React.FC = () => {
       key: "action",
       render: (_: unknown, record: AssignmentDto) => (
         <Space size="small">
-          <Button icon={<TeamOutlined />} onClick={() => { setAssigningAssignment(record); setIsAssignModalOpen(true); }}>
+          <Button
+            icon={<TeamOutlined />}
+            disabled={!record.canManage}
+            onClick={() => {
+              setAssigningAssignment(record);
+              setIsAssignModalOpen(true);
+            }}
+          >
             Giao bài
           </Button>
-          <Button icon={<EditOutlined />} onClick={() => handleOpenAssignmentModal(record)}>
+          <Button icon={<EditOutlined />} disabled={!record.canManage} onClick={() => handleOpenAssignmentModal(record)}>
             Sửa
           </Button>
-          <Popconfirm title="Xóa bài tập này?" onConfirm={() => handleDeleteAssignment(record.id)}>
-            <Button danger icon={<DeleteOutlined />}>
+          <Popconfirm
+            title="Ẩn bài tập này? Lịch sử làm bài của sinh viên sẽ vẫn được giữ lại."
+            onConfirm={() => handleDeleteAssignment(record.id)}
+            disabled={!record.canManage}
+          >
+            <Button danger icon={<DeleteOutlined />} disabled={!record.canManage}>
               Xóa
             </Button>
           </Popconfirm>
@@ -220,16 +296,16 @@ const AssignmentPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <Title level={2}>Quản lý Bài tập (TV4)</Title>
+    <div className="mx-auto max-w-7xl p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <Title level={2}>Quản lý bài tập</Title>
         <Button type="primary" size="large" icon={<PlusOutlined />} onClick={() => handleOpenAssignmentModal()}>
           Tạo bài tập
         </Button>
       </div>
 
       <Table
-        className="assignment-table shadow-sm rounded-xl overflow-hidden"
+        className="assignment-table overflow-hidden rounded-xl shadow-sm"
         columns={columns}
         rowKey="id"
         dataSource={assignments}
@@ -256,7 +332,10 @@ const AssignmentPage: React.FC = () => {
       <AssignClassModal
         visible={isAssignModalOpen}
         onCancel={() => setIsAssignModalOpen(false)}
-        onSuccess={() => { setIsAssignModalOpen(false); void fetchAssignments(); }}
+        onSuccess={() => {
+          setIsAssignModalOpen(false);
+          void fetchAssignments();
+        }}
         assignment={assigningAssignment}
       />
     </div>

@@ -24,6 +24,11 @@ export interface AssignmentDto {
   id: number;
   title: string;
   description: string;
+  maxAttempts?: number | null;
+  timeLimitMinutes?: number | null;
+  dueAt?: string | null;
+  remainingAttempts?: number | null;
+  canManage?: boolean | null;
   classrooms: ClassroomDto[];
   questions: QuestionDto[];
 }
@@ -31,6 +36,9 @@ export interface AssignmentDto {
 export interface AssignmentRequestDto {
   title: string;
   description: string;
+  maxAttempts?: number;
+  timeLimitMinutes?: number | null;
+  dueAt?: string | null;
 }
 
 // --- API Helpers ---
@@ -74,8 +82,8 @@ export const deleteAssignment = async (id: number): Promise<void> => {
   await api.delete(`/api/assignments/${id}`);
 };
 
-export const assignToClassroom = async (assignmentId: number, classroomId: number): Promise<void> => {
-  await api.post(`/api/assignments/${assignmentId}/classrooms`, { classroomIds: [classroomId] });
+export const assignToClassrooms = async (assignmentId: number, classroomIds: number[]): Promise<void> => {
+  await api.post(`/api/assignments/${assignmentId}/classrooms`, { classroomIds });
 };
 
 export const addQuestionToAssignment = async (assignmentId: number, payload: QuestionDto): Promise<QuestionDto> => {
