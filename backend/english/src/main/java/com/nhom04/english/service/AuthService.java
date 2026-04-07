@@ -140,6 +140,7 @@ public class AuthService {
         user.setResetToken(hashedToken);
         user.setResetOtp(hashedOtp);
         user.setResetExpire(System.currentTimeMillis() + 10 * 60 * 1000);
+        user.setResetVerified(Boolean.FALSE);
 
         userRepository.save(user);
 
@@ -165,7 +166,7 @@ public class AuthService {
             throw new RuntimeException("Invalid OTP");
         }
 
-        user.setResetOtp(null);
+        user.setResetVerified(Boolean.TRUE);
         return userRepository.save(user);
     }
 
@@ -174,12 +175,21 @@ public class AuthService {
         User user = userRepository.findByResetToken(hashedToken)
                 .orElseThrow(() -> new RuntimeException("LỖI: Không tìm thấy User với Token này trong DB!"));
 
+        if (user.getResetExpire() == null || user.getResetExpire() < System.currentTimeMillis()) {
+            throw new RuntimeException("Token expired");
+        }
+
+        if (!Boolean.TRUE.equals(user.getResetVerified())) {
+            throw new RuntimeException("Bạn cần xác thực OTP trước khi đặt lại mật khẩu");
+        }
+
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
 
         user.setResetToken(null);
         user.setResetOtp(null);
         user.setResetExpire(null);
+        user.setResetVerified(null);
 
         userRepository.save(user);
         System.out.println("== ĐÃ LƯU MẬT KHẨU MỚI THÀNH CÔNG == ");
