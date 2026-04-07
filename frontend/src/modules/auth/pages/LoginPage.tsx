@@ -3,7 +3,7 @@ import { Checkbox, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useUser } from "@/context/authContext";
-//import { googleAuthUrl } from "@/config/runtime";
+import { googleAuthUrl } from "@/config/runtime";
 
 const title = "LearnEng";
 
@@ -41,7 +41,7 @@ function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "https://springboot-mvuw.onrender.com/oauth2/authorization/google";
+    window.location.href = googleAuthUrl;
   };
 
   return (

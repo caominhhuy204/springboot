@@ -7,7 +7,7 @@ spring:
     name: ${SPRING_APPLICATION_NAME:english}
 
   datasource:
-    url: ${DB_URL:jdbcmysql://root:gbAKZDeZFXsiyhycdFQcatRvFwNwFMaW@shinkansen.proxy.rlwy.net:10892/railway}
+    url: ${DB_URL:jdbc:mysql://root:gbAKZDeZFXsiyhycdFQcatRvFwNwFMaW@shinkansen.proxy.rlwy.net:10892/railway}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
     driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
