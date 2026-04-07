@@ -1,9 +1,6 @@
 import axios from "axios";
 import { getAccessToken, setAccessToken} from "../context/tokenStore"
-
-const apiBaseUrl =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
-  "http://localhost:8080";
+import { apiBaseUrl } from "../config/runtime";
 
 const api = axios.create({
   baseURL: apiBaseUrl,

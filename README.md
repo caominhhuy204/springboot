@@ -70,6 +70,13 @@ The project now supports environment overrides while preserving local defaults.
 - `VITE_GOOGLE_AUTH_URL`
 - `VITE_DEV_PROXY_TARGET`
 
+For separate frontend/backend deploys, use:
+
+- `FRONTEND_URL=https://your-frontend-domain`
+- `CORS_ALLOWED_ORIGINS=https://your-frontend-domain`
+- `VITE_API_BASE_URL=https://your-backend-domain`
+- `VITE_GOOGLE_AUTH_URL=https://your-backend-domain/oauth2/authorization/google`
+
 ## Docker Compose
 
 From the project root:
@@ -99,5 +106,6 @@ For production-like deploy, put your real values in `.env` based on `.env.exampl
 - Health check endpoint: `GET /api/health`
 - Required env vars on Render: `DB_URL` or `DB_HOST` + `DB_PORT` + `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`
 - Optional env vars on Render: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `PRONUNCIATION_STORAGE_DIR`
+- If frontend is deployed separately, set `FRONTEND_URL` and `CORS_ALLOWED_ORIGINS` to the frontend domain, and set `VITE_API_BASE_URL` to the backend domain.
 - If you want Google OAuth on Render, also set `SPRING_PROFILES_ACTIVE=oauth`
 - For HTTPS cross-site cookie auth, keep `APP_COOKIE_SECURE=true` and `APP_COOKIE_SAME_SITE=None`

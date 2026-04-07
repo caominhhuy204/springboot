@@ -3,14 +3,9 @@ import { Checkbox, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useUser } from "@/context/authContext";
+import { googleAuthUrl } from "@/config/runtime";
 
 const title = "LearnEng";
-const apiBaseUrl =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ||
-  "http://localhost:8080";
-const googleAuthUrl =
-  (import.meta.env.VITE_GOOGLE_AUTH_URL as string | undefined) ||
-  `${apiBaseUrl}/oauth2/authorization/google`;
 
 function LoginPage() {
   const { login, user } = useUser();
