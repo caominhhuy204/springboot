@@ -26,6 +26,18 @@ services:
         value: update
       - key: SERVER_FORWARD_HEADERS_STRATEGY
         value: framework
+      - key: SERVER_ADDRESS
+        value: 0.0.0.0
+      - key: SPRING_MAIN_LAZY_INITIALIZATION
+        value: "true"
+      - key: SPRING_JPA_OPEN_IN_VIEW
+        value: "false"
+      - key: SPRING_DATA_JPA_REPOSITORIES_BOOTSTRAP_MODE
+        value: deferred
+      - key: JPA_SHOW_SQL
+        value: "false"
+      - key: HIBERNATE_FORMAT_SQL
+        value: "false"
       - key: PRONUNCIATION_STORAGE_DIR
         value: /app/uploads/pronunciation
       - key: SPRING_PROFILES_ACTIVE

@@ -1,10 +1,13 @@
 server:
   port: ${PORT:8080}
+  address: ${SERVER_ADDRESS:0.0.0.0}
   forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY:framework}
 
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME:english}
+  main:
+    lazy-initialization: ${SPRING_MAIN_LAZY_INITIALIZATION:false}
 
   datasource:
     url: ${DB_URL:jdbc:mysql://root:gbAKZDeZFXsiyhycdFQcatRvFwNwFMaW@shinkansen.proxy.rlwy.net:10892/railway}
@@ -13,13 +16,18 @@ spring:
     driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
 
   jpa:
+    open-in-view: ${SPRING_JPA_OPEN_IN_VIEW:false}
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
-    show-sql: ${JPA_SHOW_SQL:true}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: ${HIBERNATE_FORMAT_SQL:true}
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
         dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MySQLDialect}
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: ${SPRING_DATA_JPA_REPOSITORIES_BOOTSTRAP_MODE:deferred}
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
