@@ -78,9 +78,6 @@ const ResetPasswordPage = () => {
           </h2>
           <p className="text-gray-500 mt-2 text-sm leading-relaxed">
             Nhập mật khẩu mới cho tài khoản của bạn. <br />
-            <span className="text-[10px] text-gray-400 font-mono">
-              OTP: {otp} | Token: {token?.substring(0, 8)}...
-            </span>
           </p>
         </div>
 
