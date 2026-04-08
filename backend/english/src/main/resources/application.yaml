@@ -47,6 +47,9 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   oauth2-success-path: ${OAUTH2_SUCCESS_PATH:/oauth2-success}
   reset-password-path: ${RESET_PASSWORD_PATH:/verify-otp}
+  startup:
+    seed-default-users: ${APP_STARTUP_SEED_DEFAULT_USERS:true}
+    migrate-pronunciation-schema: ${APP_STARTUP_MIGRATE_PRONUNCIATION_SCHEMA:true}
   cookie:
     secure: ${APP_COOKIE_SECURE:true}
     same-site: ${APP_COOKIE_SAME_SITE:None}

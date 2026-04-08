@@ -38,6 +38,10 @@ services:
         value: "false"
       - key: HIBERNATE_FORMAT_SQL
         value: "false"
+      - key: APP_STARTUP_SEED_DEFAULT_USERS
+        value: "false"
+      - key: APP_STARTUP_MIGRATE_PRONUNCIATION_SCHEMA
+        value: "false"
       - key: PRONUNCIATION_STORAGE_DIR
         value: /app/uploads/pronunciation
       - key: SPRING_PROFILES_ACTIVE

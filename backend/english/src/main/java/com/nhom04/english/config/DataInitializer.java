@@ -3,6 +3,7 @@ package com.nhom04.english.config;
 import java.util.Arrays;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,11 @@ import com.nhom04.english.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
+@ConditionalOnProperty(
+        prefix = "app.startup",
+        name = "seed-default-users",
+        havingValue = "true",
+        matchIfMissing = true)
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

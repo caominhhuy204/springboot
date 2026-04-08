@@ -3,12 +3,18 @@ package com.nhom04.english.config;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
+@ConditionalOnProperty(
+        prefix = "app.startup",
+        name = "migrate-pronunciation-schema",
+        havingValue = "true",
+        matchIfMissing = true)
 @RequiredArgsConstructor
 public class PronunciationSchemaInitializer implements CommandLineRunner {
 
