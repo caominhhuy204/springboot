@@ -90,6 +90,10 @@ const VerifyOTPPage = () => {
         <h2 className="text-3xl font-extrabold text-gray-800 mb-2">Xac thuc OTP</h2>
         <p className="text-gray-500 mb-10 text-[15px]">
           Ma xac thuc da duoc gui den email cua ban.
+          <br />
+          <span className="text-xs text-gray-400 font-mono">
+            Token: {token?.substring(0, 8)}...
+          </span>
         </p>
 
         <div className="flex justify-between gap-2 mb-10">
