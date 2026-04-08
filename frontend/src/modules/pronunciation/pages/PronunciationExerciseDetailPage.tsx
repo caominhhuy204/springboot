@@ -109,6 +109,12 @@ function PronunciationExerciseDetailPage() {
   const canReview = user?.role === "ADMIN" || user?.role === "TEACHER";
   const pendingCount = submissions.filter((submission) => submission.reviewStatus === "PENDING").length;
   const reviewedCount = submissions.filter((submission) => submission.reviewStatus === "REVIEWED").length;
+  const submittedStudentCount = new Set(submissions.map((submission) => submission.studentId)).size;
+  const averageAutoScore = submissions.length
+    ? Math.round(
+        submissions.reduce((sum, submission) => sum + (submission.autoOverallScore ?? 0), 0) / submissions.length,
+      )
+    : 0;
 
   const groupedSubmissions = useMemo(() => {
     if (isStudent) {
@@ -311,17 +317,22 @@ function PronunciationExerciseDetailPage() {
           </Col>
           <Col xs={24} xl={9}>
             <Row gutter={[12, 12]}>
-              <Col span={12}>
+              <Col xs={12}>
                 <Card bordered={false} className="pronunciation-metric">
                   <Statistic title="Tổng bài nộp" value={submissions.length} prefix={<RiseOutlined />} />
                 </Card>
               </Col>
-              <Col span={12}>
+              <Col xs={12}>
                 <Card bordered={false} className="pronunciation-metric">
                   <Statistic title="Chờ chấm" value={pendingCount} prefix={<SoundOutlined />} />
                 </Card>
               </Col>
-              <Col span={24}>
+              <Col xs={12}>
+                <Card bordered={false} className="pronunciation-metric">
+                  <Statistic title="Há»c viĂªn Ä‘Ă£ ná»™p" value={submittedStudentCount} prefix={<AudioOutlined />} />
+                </Card>
+              </Col>
+              <Col xs={12}>
                 <Card bordered={false} className="pronunciation-metric">
                   <Statistic title="Đã chấm" value={reviewedCount} prefix={<AudioOutlined />} />
                 </Card>
@@ -454,6 +465,51 @@ function PronunciationExerciseDetailPage() {
             </Col>
 
             <Col xs={24} xl={14}>
+              {!isStudent && (
+                <Card className="pronunciation-panel !rounded-3xl mb-4">
+                  <Row gutter={[12, 12]}>
+                    <Col xs={24} md={8}>
+                      <Card bordered={false} className="pronunciation-metric h-full">
+                        <Statistic
+                          title="Tiáº¿n Ä‘á»™ cháº¥m"
+                          value={submissions.length ? Math.round((reviewedCount / submissions.length) * 100) : 0}
+                          suffix="%"
+                          valueStyle={{ color: reviewedCount > 0 ? "#16a34a" : "#0f172a" }}
+                        />
+                        <Text type="secondary">
+                          {reviewedCount}/{submissions.length} lÆ°á»£t ná»™p Ä‘Ă£ cĂ³ Ä‘iá»ƒm giĂ¡o viĂªn
+                        </Text>
+                      </Card>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Card bordered={false} className="pronunciation-metric h-full">
+                        <Statistic
+                          title="Auto score TB"
+                          value={averageAutoScore}
+                          suffix="/100"
+                          valueStyle={{ color: getScoreColor(averageAutoScore) }}
+                        />
+                        <Text type="secondary">Trung bĂ¬nh trĂªn toĂ n bá»™ lÆ°á»£t ná»™p</Text>
+                      </Card>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Card bordered={false} className="pronunciation-metric h-full">
+                        <Statistic
+                          title="Tráº¡ng thĂ¡i hiá»‡n táº¡i"
+                          value={pendingCount > 0 ? "CĂ²n bĂ i chá»" : "ÄĂ£ xá»­ lĂ½"}
+                          valueStyle={{ fontSize: 24, color: pendingCount > 0 ? "#d97706" : "#16a34a" }}
+                        />
+                        <Text type="secondary">
+                          {pendingCount > 0
+                            ? "NĂªn Æ°u tiĂªn cháº¥m cĂ¡c lÆ°á»£t ná»™p má»›i nháº¥t"
+                            : "Táº¥t cáº£ lÆ°á»£t ná»™p hiá»‡n Ä‘Ă£ Ä‘Æ°á»£c xá»­ lĂ½"}
+                        </Text>
+                      </Card>
+                    </Col>
+                  </Row>
+                </Card>
+              )}
+
               {isStudent && latestSubmission && (
                 <Card title="Kết quả gần nhất" className="pronunciation-panel !rounded-3xl mb-4">
                   <Row gutter={[16, 16]}>

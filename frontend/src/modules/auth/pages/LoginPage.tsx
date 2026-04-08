@@ -1,7 +1,7 @@
 import { UserIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-import { Checkbox, Form, Input, message } from "antd";
+import { Button, Checkbox, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@/context/authContext";
 import { googleAuthUrl } from "@/config/runtime";
 
@@ -10,6 +10,7 @@ const title = "LearnEng";
 function LoginPage() {
   const { login, user, isBackendWaking } = useUser();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -23,6 +24,8 @@ function LoginPage() {
   }, [user, navigate]);
 
   const onFinish = async (values: any) => {
+    setIsSubmitting(true);
+
     try {
       const { email, password } = values;
       const result = await login(email, password);
@@ -36,6 +39,8 @@ function LoginPage() {
       console.error(error);
       const errorMessage = error?.response?.data?.message ?? "Co loi xay ra, vui long thu lai!";
       message.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -118,13 +123,14 @@ function LoginPage() {
           </div>
 
           <Form.Item className="!mb-2">
-            <button
-              type="submit"
-              disabled={isBackendWaking}
-              className="w-full rounded-full bg-black py-3 text-[15px] font-bold text-white shadow-md transition-all duration-300 hover:bg-gray-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+            <Button
+              htmlType="submit"
+              loading={isSubmitting}
+              disabled={isBackendWaking || isSubmitting}
+              className="!h-auto !w-full !rounded-full !border-none !bg-black !py-3 !text-[15px] !font-bold !text-white shadow-md transition-all duration-300 hover:!bg-gray-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isBackendWaking ? "Dang ket noi may chu..." : "Dang nhap"}
-            </button>
+            </Button>
           </Form.Item>
 
           <div className="relative flex items-center py-2">

@@ -195,6 +195,8 @@ public class ExamService {
 
         List<Submission> submissions = submissionRepository.findByStudentOrderByCreatedAtDesc(student);
         List<PronunciationSubmission> pronunciationSubmissions =
+                pronunciationSubmissionRepository.findByStudentOrderBySubmittedAtDescIdDesc(student);
+        List<PronunciationSubmission> reviewedPronunciationSubmissions =
                 pronunciationSubmissionRepository.findByStudentAndReviewStatusOrderBySubmittedAtDesc(student, PronunciationReviewStatus.REVIEWED);
 
         double avgScore = 0;
@@ -207,9 +209,14 @@ public class ExamService {
                     .mapToDouble(Double::doubleValue)
                     .sum()
                     + pronunciationSubmissions.stream()
-                    .map(PronunciationSubmission::getAutoOverallScore)
-                    .filter(Objects::nonNull)
-                    .mapToDouble(Integer::doubleValue)
+                    .mapToDouble(submission -> {
+                        Integer teacherScore = submission.getTeacherScore();
+                        Integer autoScore = submission.getAutoOverallScore();
+                        if (teacherScore != null) {
+                            return teacherScore / 10.0;
+                        }
+                        return autoScore == null ? 0.0 : autoScore / 10.0;
+                    })
                     .sum();
             avgScore = sumScores / totalSubmissions;
         }
@@ -218,7 +225,7 @@ public class ExamService {
                 "totalRegularSubmissions", submissions.size(),
                 "totalPronunciationSubmissions", pronunciationSubmissions.size(),
                 "averageScore", Math.round(avgScore * 100.0) / 100.0,
-                "recentFeedback", getRecentFeedback(submissions, pronunciationSubmissions)
+                "recentFeedback", getRecentFeedback(submissions, reviewedPronunciationSubmissions)
         );
     }
 
