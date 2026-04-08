@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const token = res.data.token;
 
-    console.log(token);
     if (!token) {
       throw new Error("Login failed");
     }
