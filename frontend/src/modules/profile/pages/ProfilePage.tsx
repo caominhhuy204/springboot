@@ -13,10 +13,10 @@ import {
   Space,
   message,
 } from "antd";
-import { useUser } from "@/context/authContext";
-import api from "@/utils/axiosClient";
 import { EditOutlined, LockOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useUser } from "@/context/authContext";
+import api from "@/utils/axiosClient";
 
 type ChangePasswordFormValues = {
   oldPassword: string;
@@ -34,7 +34,10 @@ function ProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
+
     form.setFieldsValue({
       fullname: user.fullname,
       phone: user.phone ?? "",
@@ -46,154 +49,162 @@ function ProfilePage() {
       department: user.department ?? "",
       specialization: user.specialization ?? "",
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [form, user]);
 
   const openUpdateModal = () => {
+    if (!user) {
+      return;
+    }
+
     form.setFieldsValue({
-      fullname: user?.fullname,
-      phone: user?.phone ?? "",
-      address: user?.address ?? "",
-      avatarUrl: user?.avatarUrl ?? "",
-      bio: user?.bio ?? "",
-      dateOfBirth: user?.dateOfBirth ? dayjs(user.dateOfBirth) : null,
-      gender: user?.gender ?? "",
-      department: user?.department ?? "",
-      specialization: user?.specialization ?? "",
+      fullname: user.fullname,
+      phone: user.phone ?? "",
+      address: user.address ?? "",
+      avatarUrl: user.avatarUrl ?? "",
+      bio: user.bio ?? "",
+      dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null,
+      gender: user.gender ?? "",
+      department: user.department ?? "",
+      specialization: user.specialization ?? "",
     });
     setIsUpdateModalOpen(true);
   };
 
-  const closeUpdateModal = () => {
-    setIsUpdateModalOpen(false);
-  };
-
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: Record<string, unknown>) => {
     setIsSubmitting(true);
     try {
       const payload = {
         ...values,
         dateOfBirth: values.dateOfBirth
-          ? dayjs(values.dateOfBirth).format("YYYY-MM-DD")
+          ? dayjs(values.dateOfBirth as string | Date).format("YYYY-MM-DD")
           : undefined,
       };
+
       await api.put("/api/profile/me", payload);
-      message.success("Cập nhật hồ sơ thành công");
-      closeUpdateModal();
+      message.success("Cap nhat ho so thanh cong");
+      setIsUpdateModalOpen(false);
+      window.location.reload();
     } catch (error: any) {
-      message.error(error?.response?.data?.message || "Không thể cập nhật hồ sơ");
+      message.error(error?.response?.data?.message || "Khong the cap nhat ho so");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const openPasswordModal = () => {
-    passwordForm.resetFields();
-    setIsPasswordModalOpen(true);
-  };
-
-  const closePasswordModal = () => {
-    setIsPasswordModalOpen(false);
   };
 
   const onPasswordFinish = async (values: ChangePasswordFormValues) => {
     setIsChangingPassword(true);
     try {
       const response = await api.post("/api/auth/change-password", values);
-      message.success(response.data?.message || "Đổi mật khẩu thành công");
-      closePasswordModal();
+      message.success(response.data?.message || "Doi mat khau thanh cong");
+      setIsPasswordModalOpen(false);
       passwordForm.resetFields();
+      window.location.href = "/login";
     } catch (error: any) {
-      message.error(error?.response?.data?.message || "Không thể đổi mật khẩu");
+      message.error(error?.response?.data?.message || "Khong the doi mat khau");
     } finally {
       setIsChangingPassword(false);
     }
   };
 
-  const roleConfig: Record<string, { color: string; label: string }> = {
-    ADMIN: { color: "red", label: "Quản trị" },
-    TEACHER: { color: "blue", label: "Giáo viên" },
-    STUDENT: { color: "green", label: "Học sinh" },
+  const roleConfig: Record<string, { colorClass: string; label: string }> = {
+    ADMIN: { colorClass: "text-red-600 bg-red-50", label: "Quan tri" },
+    TEACHER: { colorClass: "text-blue-600 bg-blue-50", label: "Giao vien" },
+    STUDENT: { colorClass: "text-green-600 bg-green-50", label: "Hoc sinh" },
   };
 
-  const role = roleConfig[user?.role ?? "STUDENT"] ?? { color: "default", label: user?.role ?? "" };
+  const role = roleConfig[user?.role ?? "STUDENT"] ?? {
+    colorClass: "text-slate-600 bg-slate-50",
+    label: user?.role ?? "",
+  };
 
   const getUpdateModalTitle = () => {
     switch (user?.role) {
       case "ADMIN":
-        return "Cập nhật thông tin quản trị";
+        return "Cap nhat thong tin quan tri";
       case "TEACHER":
-        return "Cập nhật thông tin giáo viên";
+        return "Cap nhat thong tin giao vien";
       case "STUDENT":
-        return "Cập nhật thông tin học sinh";
+        return "Cap nhat thong tin hoc sinh";
       default:
-        return "Cập nhật thông tin";
+        return "Cap nhat thong tin";
     }
   };
 
   const formatDate = (date: string | null | undefined) => {
-    if (!date) return "—";
-    const d = dayjs(date);
-    return d.isValid() ? d.format("DD/MM/YYYY") : "—";
+    if (!date) {
+      return "-";
+    }
+
+    const parsed = dayjs(date);
+    return parsed.isValid() ? parsed.format("DD/MM/YYYY") : "-";
   };
 
   return (
     <>
       <div className="w-full max-w-3xl mx-auto">
         <Card className="dashboard-surface">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="!mb-0 !text-slate-800 !font-bold !text-base">Thông tin cá nhân</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="!mb-0 !text-base !font-bold !text-slate-800">Thong tin ca nhan</h3>
             <Space>
               <Button icon={<EditOutlined />} onClick={openUpdateModal}>
-                Cập nhật
+                Cap nhat
               </Button>
-              <Button icon={<LockOutlined />} onClick={openPasswordModal}>
-                Đổi mật khẩu
+              <Button
+                icon={<LockOutlined />}
+                onClick={() => {
+                  passwordForm.resetFields();
+                  setIsPasswordModalOpen(true);
+                }}
+              >
+                Doi mat khau
               </Button>
             </Space>
           </div>
+
           <Descriptions column={{ xs: 1, sm: 2 }} size="small">
-            <Descriptions.Item label="Họ và tên">{user?.fullname}</Descriptions.Item>
+            <Descriptions.Item label="Ho va ten">{user?.fullname}</Descriptions.Item>
             <Descriptions.Item label="Email">{user?.email}</Descriptions.Item>
-            <Descriptions.Item label="Vai trò">
-              <span className={`inline-block px-2.5 py-0.5 rounded text-xs font-bold text-${role.color}-600 bg-${role.color}-50`}>
+            <Descriptions.Item label="Vai tro">
+              <span className={`inline-block rounded px-2.5 py-0.5 text-xs font-bold ${role.colorClass}`}>
                 {role.label}
               </span>
             </Descriptions.Item>
             {user?.role === "STUDENT" && (
-              <Descriptions.Item label="Mã sinh viên">
-                <span className="font-mono">{user?.studentCode || "—"}</span>
-              </Descriptions.Item>
+              <Descriptions.Item label="Ma sinh vien">{user?.studentCode || "-"}</Descriptions.Item>
             )}
             {user?.role === "TEACHER" && (
-              <Descriptions.Item label="Mã giáo viên">
-                <span className="font-mono">{user?.teacherCode || "—"}</span>
-              </Descriptions.Item>
+              <Descriptions.Item label="Ma giao vien">{user?.teacherCode || "-"}</Descriptions.Item>
             )}
-            <Descriptions.Item label="Số điện thoại">{user?.phone || "—"}</Descriptions.Item>
-            <Descriptions.Item label="Ngày sinh">{formatDate(user?.dateOfBirth)}</Descriptions.Item>
-            <Descriptions.Item label="Giới tính">{user?.gender || "—"}</Descriptions.Item>
-            <Descriptions.Item label="Địa chỉ">{user?.address || "—"}</Descriptions.Item>
+            <Descriptions.Item label="So dien thoai">{user?.phone || "-"}</Descriptions.Item>
+            <Descriptions.Item label="Ngay sinh">{formatDate(user?.dateOfBirth)}</Descriptions.Item>
+            <Descriptions.Item label="Gioi tinh">{user?.gender || "-"}</Descriptions.Item>
+            <Descriptions.Item label="Dia chi">{user?.address || "-"}</Descriptions.Item>
 
             {user?.role === "ADMIN" && (
-              <Descriptions.Item label="Phòng ban">{user?.department || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Phong ban">{user?.department || "-"}</Descriptions.Item>
             )}
             {user?.role === "ADMIN" && (
-              <Descriptions.Item label="Mô tả" span={2}>{user?.bio || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Mo ta" span={2}>
+                {user?.bio || "-"}
+              </Descriptions.Item>
             )}
 
             {user?.role === "TEACHER" && (
-              <Descriptions.Item label="Phòng ban / Khoa">{user?.department || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Phong ban / Khoa">{user?.department || "-"}</Descriptions.Item>
             )}
             {user?.role === "TEACHER" && (
-              <Descriptions.Item label="Chuyên môn">{user?.specialization || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Chuyen mon">{user?.specialization || "-"}</Descriptions.Item>
             )}
             {user?.role === "TEACHER" && (
-              <Descriptions.Item label="Mô tả" span={2}>{user?.bio || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Mo ta" span={2}>
+                {user?.bio || "-"}
+              </Descriptions.Item>
             )}
 
             {user?.role === "STUDENT" && (
-              <Descriptions.Item label="Mô tả" span={2}>{user?.bio || "—"}</Descriptions.Item>
+              <Descriptions.Item label="Mo ta" span={2}>
+                {user?.bio || "-"}
+              </Descriptions.Item>
             )}
           </Descriptions>
         </Card>
@@ -202,60 +213,66 @@ function ProfilePage() {
       <Modal
         title={getUpdateModalTitle()}
         open={isUpdateModalOpen}
-        onCancel={closeUpdateModal}
+        onCancel={() => setIsUpdateModalOpen(false)}
         onOk={() => form.submit()}
         confirmLoading={isSubmitting}
-        okText="Lưu thay đổi"
-        cancelText="Hủy"
+        okText="Luu thay doi"
+        cancelText="Huy"
         destroyOnClose
         width={560}
       >
         <Form layout="vertical" form={form} onFinish={onFinish} requiredMark={false}>
           <Form.Item
             name="fullname"
-            label="Họ và tên"
-            rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
+            label="Ho va ten"
+            rules={[{ required: true, message: "Vui long nhap ho va ten" }]}
           >
-            <Input placeholder="Nhập họ và tên đầy đủ" size="large" />
+            <Input placeholder="Nhap ho va ten day du" size="large" />
           </Form.Item>
 
           {(user?.role === "STUDENT" || user?.role === "TEACHER") && (
-            <Form.Item name="phone" label="Số điện thoại">
+            <Form.Item name="phone" label="So dien thoai">
               <Input placeholder="VD: 0912 345 678" size="large" />
             </Form.Item>
           )}
 
           <Row gutter={12}>
             <Col span={12}>
-              <Form.Item name="dateOfBirth" label="Ngày sinh">
-                <DatePicker className="w-full" size="large" format="DD/MM/YYYY" placeholder="Chọn ngày sinh" />
+              <Form.Item name="dateOfBirth" label="Ngay sinh">
+                <DatePicker className="w-full" size="large" format="DD/MM/YYYY" placeholder="Chon ngay sinh" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="gender" label="Giới tính">
-                <Select allowClear placeholder="Chọn giới tính" size="large" options={[
-                  { label: "Nam", value: "Nam" },
-                  { label: "Nữ", value: "Nữ" },
-                  { label: "Khác", value: "Khác" },
-                ]} />
+              <Form.Item name="gender" label="Gioi tinh">
+                <Select
+                  allowClear
+                  placeholder="Chon gioi tinh"
+                  size="large"
+                  options={[
+                    { label: "Nam", value: "Nam" },
+                    { label: "Nu", value: "Nu" },
+                    { label: "Khac", value: "Khac" },
+                  ]}
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item name="address" label="Địa chỉ">
-            <Input placeholder="VD: 123 Nguyễn Trãi, Q1, TP.HCM" size="large" />
+          <Form.Item name="address" label="Dia chi">
+            <Input placeholder="VD: 123 Nguyen Trai, Quan 1, TP.HCM" size="large" />
+          </Form.Item>
+
+          <Form.Item name="avatarUrl" label="Avatar URL">
+            <Input placeholder="https://example.com/avatar.jpg" size="large" />
           </Form.Item>
 
           {user?.role === "ADMIN" && (
             <>
-              <Form.Item name="avatarUrl" label="Avatar URL">
-                <Input placeholder="https://example.com/avatar.jpg" size="large" />
+              <Form.Item name="department" label="Phong ban">
+                <Input placeholder="VD: Phong Cong nghe thong tin" size="large" />
               </Form.Item>
-              <Form.Item name="department" label="Phòng ban">
-                <Input placeholder="VD: Phòng Công nghệ thông tin" size="large" />
-              </Form.Item>
-              <Form.Item name="bio" label="Mô tả">
-                <Input.TextArea rows={3} placeholder="Giới thiệu ngắn về bản thân..." />
+              <Form.Item name="bio" label="Mo ta">
+                <Input.TextArea rows={3} placeholder="Gioi thieu ngan ve ban than..." />
               </Form.Item>
             </>
           )}
@@ -264,72 +281,72 @@ function ProfilePage() {
             <>
               <Row gutter={12}>
                 <Col span={12}>
-                  <Form.Item name="department" label="Phòng ban / Khoa">
-                    <Input placeholder="VD: Khoa Ngoại ngữ" size="large" />
+                  <Form.Item name="department" label="Phong ban / Khoa">
+                    <Input placeholder="VD: Khoa Ngoai ngu" size="large" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="specialization" label="Chuyên môn">
-                    <Input placeholder="VD: Tiếng Anh" size="large" />
+                  <Form.Item name="specialization" label="Chuyen mon">
+                    <Input placeholder="VD: Tieng Anh" size="large" />
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item name="avatarUrl" label="Avatar URL">
-                <Input placeholder="https://example.com/avatar.jpg" size="large" />
-              </Form.Item>
-              <Form.Item name="bio" label="Mô tả / Tiểu sử">
-                <Input.TextArea rows={3} placeholder="Giới thiệu ngắn về bản thân..." />
+              <Form.Item name="bio" label="Mo ta / Tieu su">
+                <Input.TextArea rows={3} placeholder="Gioi thieu ngan ve ban than..." />
               </Form.Item>
             </>
           )}
 
           {user?.role === "STUDENT" && (
-            <>
-              <Form.Item name="avatarUrl" label="Avatar URL">
-                <Input placeholder="https://example.com/avatar.jpg" size="large" />
-              </Form.Item>
-              <Form.Item name="bio" label="Mô tả / Giới thiệu">
-                <Input.TextArea rows={3} placeholder="Giới thiệu ngắn về bản thân..." />
-              </Form.Item>
-            </>
+            <Form.Item name="bio" label="Mo ta / Gioi thieu">
+              <Input.TextArea rows={3} placeholder="Gioi thieu ngan ve ban than..." />
+            </Form.Item>
           )}
         </Form>
       </Modal>
 
       <Modal
-        title="Đổi mật khẩu"
+        title="Doi mat khau"
         open={isPasswordModalOpen}
-        onCancel={closePasswordModal}
+        onCancel={() => setIsPasswordModalOpen(false)}
         onOk={() => passwordForm.submit()}
         confirmLoading={isChangingPassword}
-        okText="Xác nhận"
-        cancelText="Hủy"
+        okText="Xac nhan"
+        cancelText="Huy"
         destroyOnClose
       >
         <Form layout="vertical" form={passwordForm} onFinish={onPasswordFinish}>
-          <Form.Item name="oldPassword" label="Mật khẩu cũ" rules={[{ required: true, message: "Vui lòng nhập mật khẩu cũ" }]}>
-            <Input.Password placeholder="Nhập mật khẩu cũ" size="large" />
+          <Form.Item
+            name="oldPassword"
+            label="Mat khau cu"
+            rules={[{ required: true, message: "Vui long nhap mat khau cu" }]}
+          >
+            <Input.Password placeholder="Nhap mat khau cu" size="large" />
           </Form.Item>
-          <Form.Item name="newPassword" label="Mật khẩu mới" rules={[{ required: true, message: "Vui lòng nhập mật khẩu mới" }]}>
-            <Input.Password placeholder="Nhập mật khẩu mới" size="large" />
+          <Form.Item
+            name="newPassword"
+            label="Mat khau moi"
+            rules={[{ required: true, message: "Vui long nhap mat khau moi" }]}
+          >
+            <Input.Password placeholder="Nhap mat khau moi" size="large" />
           </Form.Item>
           <Form.Item
             name="confirmNewPassword"
-            label="Xác nhận mật khẩu"
+            label="Xac nhan mat khau"
             dependencies={["newPassword"]}
             rules={[
-              { required: true, message: "Vui lòng nhập lại mật khẩu mới" },
+              { required: true, message: "Vui long nhap lai mat khau moi" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue("newPassword") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Mật khẩu xác nhận không khớp"));
+                  return Promise.reject(new Error("Mat khau xac nhan khong khop"));
                 },
               }),
             ]}
           >
-            <Input.Password placeholder="Nhập lại mật khẩu mới" size="large" />
+            <Input.Password placeholder="Nhap lai mat khau moi" size="large" />
           </Form.Item>
         </Form>
       </Modal>

@@ -33,6 +33,7 @@ import { Link, useParams } from "react-router-dom";
 import type { UploadFile } from "antd/es/upload/interface";
 import api from "@/utils/axiosClient";
 import { useUser } from "@/context/authContext";
+import AuthenticatedAudioPlayer from "@/modules/pronunciation/components/AuthenticatedAudioPlayer";
 import type {
   PronunciationExercise,
   PronunciationReviewPayload,
@@ -641,7 +642,7 @@ function PronunciationExerciseDetailPage() {
                           <Text type="secondary">
                             Thời lượng: {submission.durationSeconds.toFixed(1)} giây
                           </Text>
-                          <audio controls src={submission.audioUrl} className="w-full" />
+                          <AuthenticatedAudioPlayer src={submission.audioUrl} className="w-full" />
                           {submission.reviewStatus === "PENDING" && (
                             <Text type="secondary">
                               Điểm tham khảo hệ thống: {submission.autoOverallScore}/100
@@ -701,7 +702,7 @@ function PronunciationExerciseDetailPage() {
                         title: "Audio",
                         key: "audio",
                         width: 260,
-                        render: (_, record) => <audio controls src={record.audioUrl} />,
+                        render: (_, record) => <AuthenticatedAudioPlayer src={record.audioUrl} width={220} />,
                       },
                       ...(canReview
                         ? [

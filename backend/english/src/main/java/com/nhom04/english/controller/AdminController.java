@@ -1,6 +1,7 @@
 package com.nhom04.english.controller;
 
 import com.nhom04.english.dto.DashboardStatsResponse;
+import com.nhom04.english.dto.AdminUpdateUserRequest;
 import com.nhom04.english.dto.MonthlySubmissionStats;
 import com.nhom04.english.dto.MonthlyUserStats;
 import com.nhom04.english.dto.UserResponse;
@@ -31,6 +32,7 @@ public class AdminController {
     private final ClassroomRepository classroomRepository;
     private final AssignmentRepository assignmentRepository;
     private final SubmissionRepository submissionRepository;
+    private final RoleRepository roleRepository;
 
     // ── Users ───────────────────────────────────────
     @GetMapping("/users")
@@ -46,6 +48,47 @@ public class AdminController {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         return ResponseEntity.ok(toUserResponse(user));
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long id,
+            @RequestBody AdminUpdateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        userRepository.findByEmail(request.getEmail())
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    throw new RuntimeException("Email đã tồn tại");
+                });
+
+        userRepository.findByUsername(request.getUsername())
+                .filter(existing -> !existing.getId().equals(id))
+                .ifPresent(existing -> {
+                    throw new RuntimeException("Username đã tồn tại");
+                });
+
+        Role targetRole = roleRepository.findByName(request.getRole())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy role"));
+
+        user.setUsername(request.getUsername().trim());
+        user.setFullname(request.getFullname().trim());
+        user.setEmail(request.getEmail().trim());
+        user.setRole(targetRole);
+        user.setPhone(normalizeOptionalValue(request.getPhone()));
+        user.setAddress(normalizeOptionalValue(request.getAddress()));
+        user.setAvatarUrl(normalizeOptionalValue(request.getAvatarUrl()));
+        user.setBio(normalizeOptionalValue(request.getBio()));
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setGender(normalizeOptionalValue(request.getGender()));
+        user.setDepartment(normalizeOptionalValue(request.getDepartment()));
+        user.setSpecialization(normalizeOptionalValue(request.getSpecialization()));
+        user.setStudentCode(request.getRole() == Role.RoleName.STUDENT ? normalizeOptionalValue(request.getStudentCode()) : null);
+        user.setTeacherCode(request.getRole() == Role.RoleName.TEACHER ? normalizeOptionalValue(request.getTeacherCode()) : null);
+        user.setActiveSessionId(null);
+
+        return ResponseEntity.ok(toUserResponse(userRepository.save(user)));
     }
 
     @DeleteMapping("/users/{id}")
@@ -173,5 +216,13 @@ public class AdminController {
         response.setStudentCode(user.getStudentCode());
         response.setTeacherCode(user.getTeacherCode());
         return response;
+    }
+
+    private String normalizeOptionalValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

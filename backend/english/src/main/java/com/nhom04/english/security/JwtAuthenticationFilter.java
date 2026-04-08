@@ -9,6 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.nhom04.english.entity.User;
+import com.nhom04.english.repository.UserRepository;
 import com.nhom04.english.service.JwtService;
 
 import jakarta.servlet.FilterChain;
@@ -21,9 +23,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -69,6 +73,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String email = jwtService.extractEmail(token);
                 String role = jwtService.extractRole(token);
+                String sessionId = jwtService.extractSessionId(token);
+                User user = userRepository.findByEmail(email).orElse(null);
+
+                if (user == null || sessionId == null || user.getActiveSessionId() == null
+                        || !sessionId.equals(user.getActiveSessionId())) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
                 System.out.println("EMAIL: " + email);
                 System.out.println("ROLE: " + role);

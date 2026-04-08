@@ -120,7 +120,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        authService.invalidateSession(authService.extractTokenFromRequest(request));
 
         ResponseCookie cookie = ResponseCookie.from("token", "")
                 .httpOnly(true)
@@ -145,8 +146,7 @@ public class AuthController {
         String email = authentication.getName();
 
         User user = authService.getUserByEmail(email);
-
-        return ResponseEntity.ok(toUserResponse(user));
+        return ResponseEntity.ok(authService.toUserResponse(user));
     }
 
     @PostMapping("/forgot-password")
@@ -215,22 +215,6 @@ public class AuthController {
     }
 
     private UserResponse toUserResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setFullname(user.getFullname());
-        response.setEmail(user.getEmail());
-        response.setRole(user.getRole().getName().name());
-        response.setPhone(user.getPhone());
-        response.setAddress(user.getAddress());
-        response.setAvatarUrl(user.getAvatarUrl());
-        response.setBio(user.getBio());
-        response.setDateOfBirth(user.getDateOfBirth());
-        response.setGender(user.getGender());
-        response.setDepartment(user.getDepartment());
-        response.setSpecialization(user.getSpecialization());
-        response.setStudentCode(user.getStudentCode());
-        response.setTeacherCode(user.getTeacherCode());
-        return response;
+        return authService.toUserResponse(user);
     }
 }

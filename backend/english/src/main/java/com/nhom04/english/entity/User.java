@@ -96,6 +96,9 @@ public class User {
     @Column(name = "reset_expire")
     private Long resetExpire;
 
+    @Column(name = "active_session_id", length = 120)
+    private String activeSessionId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

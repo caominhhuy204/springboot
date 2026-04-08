@@ -14,7 +14,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (user) {
-      const roleName = String(user?.role || "");
+      const roleName = String(user.role || "");
       if (roleName.includes("TEACHER") || roleName.includes("ADMIN")) {
         navigate("/teacher/assignments");
       } else {
@@ -36,7 +36,6 @@ function LoginPage() {
         message.error(result.message || "Dang nhap that bai!");
       }
     } catch (error: any) {
-      console.error(error);
       const errorMessage = error?.response?.data?.message ?? "Co loi xay ra, vui long thu lai!";
       message.error(errorMessage);
     } finally {
@@ -44,48 +43,46 @@ function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = googleAuthUrl;
-  };
-
   return (
-    <div className="grid h-screen grid-cols-2 animated-gradient login-page">
-      <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-br-[50%] bg-white p-12">
-        <h1 className="flex flex-wrap text-[50px] font-bold">
-          {title.split(" ")?.map((word, wordIndex) => (
+    <div className="login-page animated-gradient min-h-screen md:grid md:grid-cols-2">
+      <div className="relative hidden overflow-hidden rounded-br-[18%] bg-white px-8 py-12 md:flex md:flex-col md:items-center md:justify-center lg:p-12">
+        <h1 className="flex flex-wrap text-4xl font-bold lg:text-[50px]">
+          {title.split(" ").map((word, wordIndex) => (
             <span key={wordIndex} className="flex">
-              {word.split("")?.map((char, charIndex) => (
+              {word.split("").map((char, charIndex) => (
                 <span
                   key={charIndex}
                   className="animate-color-change inline-block"
-                  style={{
-                    animationDelay: `${(wordIndex * 7 + charIndex) * 100}ms`,
-                  }}
+                  style={{ animationDelay: `${(wordIndex * 7 + charIndex) * 100}ms` }}
                 >
                   {char}
                 </span>
               ))}
-              <span className="inline-block w-2"></span>
+              <span className="inline-block w-2" />
             </span>
           ))}
         </h1>
 
-        <p className="max-w-md text-center !text-[20px] leading-relaxed text-gray-600">
+        <p className="max-w-md text-center text-lg leading-relaxed text-gray-600 lg:text-[20px]">
           Welcome back and have a productive day.
         </p>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-8 px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6">
+        <div className="mb-8 text-center md:hidden">
+          <h1 className="text-4xl font-bold text-white">{title}</h1>
+          <p className="mt-2 text-sm text-white/85">Dang nhap de tiep tuc hoc tap va quan ly bai hoc.</p>
+        </div>
+
         <Form
           name="login"
           layout="vertical"
-          className="w-full max-w-sm space-y-4"
+          className="w-full max-w-sm rounded-[28px] border border-white/20 bg-white/12 p-5 shadow-xl backdrop-blur-md sm:p-6 md:max-w-sm md:rounded-none md:border-none md:bg-transparent md:p-0 md:shadow-none"
           onFinish={onFinish}
         >
           {isBackendWaking ? (
-            <div className="rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm text-white backdrop-blur-md">
-              Backend tren Render dang duoc danh thuc. Neu app vua bi sleep, lan truy cap dau tien
-              co the cham hon binh thuong.
+            <div className="mb-4 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm text-white backdrop-blur-md">
+              Backend tren Render dang duoc danh thuc. Lan truy cap dau tien co the cham hon binh thuong.
             </div>
           ) : null}
 
@@ -97,7 +94,7 @@ function LoginPage() {
               name="email"
               prefix={<UserIcon className="mr-2 h-5 w-5 text-gray-400" />}
               placeholder="Nhap email hoac username"
-              className="!rounded-full !border !border-white/30 !bg-white/20 !px-6 !py-3 !text-[14px] !backdrop-blur-md placeholder:!text-white/60 focus:shadow-lg transition-all duration-300"
+              className="!rounded-full !border !border-white/30 !bg-white/20 !px-5 !py-3 !text-[14px] !backdrop-blur-md placeholder:!text-white/60"
             />
           </Form.Item>
 
@@ -109,11 +106,11 @@ function LoginPage() {
               name="password"
               prefix={<LockClosedIcon className="mr-2 h-5 w-5 text-gray-400" />}
               placeholder="Nhap mat khau"
-              className="!rounded-full !border !border-white/30 !bg-white/20 !px-6 !py-3 !text-[14px] !backdrop-blur-md placeholder:!text-white/60 focus:shadow-lg transition-all duration-300"
+              className="!rounded-full !border !border-white/30 !bg-white/20 !px-5 !py-3 !text-[14px] !backdrop-blur-md placeholder:!text-white/60"
             />
           </Form.Item>
 
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <Form.Item name="remember" valuePropName="checked" noStyle>
               <Checkbox className="!text-white">Nho mat khau</Checkbox>
             </Form.Item>
@@ -127,23 +124,25 @@ function LoginPage() {
               htmlType="submit"
               loading={isSubmitting}
               disabled={isBackendWaking || isSubmitting}
-              className="!h-auto !w-full !rounded-full !border-none !bg-black !py-3 !text-[15px] !font-bold !text-white shadow-md transition-all duration-300 hover:!bg-gray-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+              className="!h-auto !w-full !rounded-full !border-none !bg-black !py-3 !text-[15px] !font-bold !text-white shadow-md hover:!bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isBackendWaking ? "Dang ket noi may chu..." : "Dang nhap"}
             </Button>
           </Form.Item>
 
           <div className="relative flex items-center py-2">
-            <div className="flex-grow border-t border-gray-300"></div>
+            <div className="flex-grow border-t border-gray-300" />
             <span className="mx-4 flex-shrink text-xs uppercase text-white">Hoac</span>
-            <div className="flex-grow border-t border-gray-300"></div>
+            <div className="flex-grow border-t border-gray-300" />
           </div>
 
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={() => {
+              window.location.href = googleAuthUrl;
+            }}
             disabled={isBackendWaking}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-3 text-[15px] font-semibold text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white py-3 text-[15px] font-semibold text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-70"
           >
             <img
               src="https://play-lh.googleusercontent.com/Eh-N9HKWJgQ4Oa5wmhaE5RbHkB3m3Ud9tsW6saUHis05BL7Xnpubi5iamR5lDKd-Ew"
@@ -154,7 +153,7 @@ function LoginPage() {
           </button>
         </Form>
 
-        <p className="!-mt-2 text-sm text-white">
+        <p className="mt-6 text-center text-sm text-white">
           Chua co tai khoan?{" "}
           <Link to="/register" className="font-semibold underline hover:text-gray-200">
             Dang ky ngay

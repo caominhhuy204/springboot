@@ -19,6 +19,7 @@ import com.nhom04.english.repository.RoleRepository;
 import com.nhom04.english.entity.User;
 import com.nhom04.english.entity.Role;
 
+import jakarta.transaction.Transactional;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,6 +50,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     }
 
     @Override
+    @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication)
@@ -77,7 +79,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             userRepository.save(user);
         }
 
-        String token = jwtService.generateToken(user.getEmail(), user.getRole().getName().name(), user.getFullname());
+        String sessionId = UUID.randomUUID().toString();
+        user.setActiveSessionId(sessionId);
+        userRepository.save(user);
+
+        String token = jwtService.generateToken(
+                user.getEmail(),
+                user.getRole().getName().name(),
+                user.getFullname(),
+                sessionId);
 
         String redirectUrl = normalizeBaseUrl(frontendUrl)
                 + normalizePath(oauth2SuccessPath)

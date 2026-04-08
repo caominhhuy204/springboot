@@ -14,6 +14,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #f8fafc;
   color: #0f172a;
+  overflow-x: hidden;
 }
 
 #root {
@@ -728,6 +729,33 @@ audio {
 /* Content wrapper — fills available space, no hard max-width */
 .portal-content-wrap {
   width: 100%;
+  min-width: 0;
+}
+
+.portal-mobile-drawer .ant-drawer-body {
+  padding: 0 !important;
+}
+
+.portal-mobile-menu-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  color: #334155 !important;
+}
+
+.portal-mobile-menu-btn:hover {
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+}
+
+.ant-card,
+.ant-card-body,
+.ant-space,
+.ant-space-item {
+  min-width: 0;
 }
 
 /* Responsive: hide sidebar on mobile */
@@ -842,16 +870,69 @@ audio {
 @media (max-width: 991px) {
   .app-shell-main {
     margin-left: 0 !important;
-    width: 100vw !important;
+    width: 100% !important;
   }
 
-  .portal-sider {
-    transform: translateX(-100%);
-    transition: transform 0.25s ease !important;
+  .portal-header {
+    padding: 0 14px !important;
   }
 
-  .portal-sider.ant-menu-open,
-  .portal-sider:not(.ant-layout-sider-collapsed) {
-    transform: translateX(0) !important;
+  .portal-content {
+    min-height: calc(100vh - 64px) !important;
+  }
+
+  .dashboard-surface .ant-card-head,
+  .pronunciation-panel .ant-card-head {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .dashboard-surface .ant-card-body,
+  .pronunciation-panel .ant-card-body,
+  .pronunciation-hero .ant-card-body {
+    padding: 14px !important;
+  }
+
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .ant-table-wrapper .ant-table {
+    min-width: 680px;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-hero__title {
+    font-size: 1.3rem;
+  }
+
+  .dashboard-task-item:hover {
+    margin: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    border-radius: 0;
+  }
+
+  .pronunciation-pill {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pronunciation-metric .ant-statistic-content {
+    font-size: 24px;
+  }
+
+  .ant-modal {
+    max-width: calc(100vw - 20px) !important;
+  }
+
+  .ant-modal .ant-modal-content {
+    padding: 16px !important;
+  }
+
+  .ant-descriptions .ant-descriptions-row > th,
+  .ant-descriptions .ant-descriptions-row > td {
+    padding-bottom: 10px !important;
   }
 }
