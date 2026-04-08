@@ -1,6 +1,33 @@
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Skeleton, Space, Statistic, Tag, Typography, message } from "antd";
-import { AudioOutlined, DeleteOutlined, EditOutlined, PlusOutlined, RiseOutlined, SoundOutlined, TeamOutlined } from "@ant-design/icons";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Empty,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Skeleton,
+  Space,
+  Statistic,
+  Tag,
+  Typography,
+  message,
+} from "antd";
+import {
+  AudioOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  RiseOutlined,
+  SoundOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import api from "@/utils/axiosClient";
 import { useUser } from "@/context/authContext";
@@ -128,7 +155,8 @@ function PronunciationExercisesPage() {
                 {classroom?.name ?? "Đang tải lớp học"}
               </Title>
               <Paragraph className="!mb-0 !text-cyan-100">
-                Tạo bài theo câu mẫu, định hướng kỹ năng cần luyện và để sinh viên ghi âm hoặc upload file để nộp bài.
+                Tạo bài theo câu mẫu, định hướng kỹ năng cần luyện và để sinh viên ghi âm hoặc upload
+                file để nộp bài.
               </Paragraph>
               <div className="flex flex-wrap gap-2">
                 <span className="pronunciation-pill">
@@ -217,13 +245,18 @@ function PronunciationExercisesPage() {
                     {exercise.classroomNames.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {exercise.classroomNames.map((name) => (
-                          <Tag key={`${exercise.id}-${name}`} color={name === classroom?.name ? "cyan" : "default"}>
+                          <Tag
+                            key={`${exercise.id}-${name}`}
+                            color={name === classroom?.name ? "cyan" : "default"}
+                          >
                             {name}
                           </Tag>
                         ))}
                       </div>
                     )}
-                    {exercise.description && <Paragraph className="!mb-0 !text-slate-600">{exercise.description}</Paragraph>}
+                    {exercise.description && (
+                      <Paragraph className="!mb-0 !text-slate-600">{exercise.description}</Paragraph>
+                    )}
                     <Space wrap>
                       <Link to={`/classrooms/${numericClassroomId}/pronunciation/${exercise.id}`}>
                         <Button icon={<AudioOutlined />} type="primary">
@@ -232,19 +265,19 @@ function PronunciationExercisesPage() {
                       </Link>
                       {canManage && (
                         <Button icon={<EditOutlined />} onClick={() => openEditModal(exercise)}>
-                          Sua
+                          Sửa
                         </Button>
                       )}
                       {canManage && (
                         <Popconfirm
                           title="Xóa bài phát âm"
                           description="Bạn chắc chắn muốn xóa bài này?"
-                          okText="Xoa"
-                          cancelText="Huy"
+                          okText="Xóa"
+                          cancelText="Hủy"
                           onConfirm={() => void handleDeleteExercise(exercise.id)}
                         >
                           <Button danger icon={<DeleteOutlined />}>
-                            Xoa
+                            Xóa
                           </Button>
                         </Popconfirm>
                       )}
@@ -280,7 +313,11 @@ function PronunciationExercisesPage() {
               placeholder="Chọn một hoặc nhiều lớp"
             />
           </Form.Item>
-          <Form.Item name="title" label="Tiêu đề" rules={[{ required: true, message: "Nhập tiêu đề" }]}>
+          <Form.Item
+            name="title"
+            label="Tiêu đề"
+            rules={[{ required: true, message: "Nhập tiêu đề" }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item
@@ -291,7 +328,7 @@ function PronunciationExercisesPage() {
             <Input.TextArea rows={3} />
           </Form.Item>
           <Form.Item name="focusSkill" label="Kỹ năng trọng tâm">
-            <Input placeholder="VD: ending sounds, stress, /s/ va /sh/" />
+            <Input placeholder="VD: ending sounds, stress, /s/ và /sh/" />
           </Form.Item>
           <Form.Item name="description" label="Hướng dẫn">
             <Input.TextArea rows={3} />

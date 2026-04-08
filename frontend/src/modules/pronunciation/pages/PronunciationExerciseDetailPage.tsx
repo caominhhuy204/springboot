@@ -1,11 +1,43 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, List, Modal, Progress, Row, Segmented, Skeleton, Space, Statistic, Table, Tag, Typography, Upload, message } from "antd";
-import { AudioOutlined, InboxOutlined, RiseOutlined, SoundOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Empty,
+  Form,
+  Input,
+  InputNumber,
+  List,
+  Modal,
+  Progress,
+  Row,
+  Segmented,
+  Skeleton,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  Typography,
+  Upload,
+  message,
+} from "antd";
+import {
+  AudioOutlined,
+  InboxOutlined,
+  RiseOutlined,
+  SoundOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import type { UploadFile } from "antd/es/upload/interface";
 import api from "@/utils/axiosClient";
 import { useUser } from "@/context/authContext";
-import type { PronunciationExercise, PronunciationReviewPayload, PronunciationSubmission } from "@/types/pronunciation";
+import type {
+  PronunciationExercise,
+  PronunciationReviewPayload,
+  PronunciationSubmission,
+} from "@/types/pronunciation";
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -112,7 +144,8 @@ function PronunciationExerciseDetailPage() {
   const submittedStudentCount = new Set(submissions.map((submission) => submission.studentId)).size;
   const averageAutoScore = submissions.length
     ? Math.round(
-        submissions.reduce((sum, submission) => sum + (submission.autoOverallScore ?? 0), 0) / submissions.length,
+        submissions.reduce((sum, submission) => sum + (submission.autoOverallScore ?? 0), 0) /
+          submissions.length,
       )
     : 0;
 
@@ -329,7 +362,7 @@ function PronunciationExerciseDetailPage() {
               </Col>
               <Col xs={12}>
                 <Card bordered={false} className="pronunciation-metric">
-                  <Statistic title="Há»c viĂªn Ä‘Ă£ ná»™p" value={submittedStudentCount} prefix={<AudioOutlined />} />
+                  <Statistic title="Học viên đã nộp" value={submittedStudentCount} prefix={<AudioOutlined />} />
                 </Card>
               </Col>
               <Col xs={12}>
@@ -369,11 +402,7 @@ function PronunciationExerciseDetailPage() {
                     </Paragraph>
                   </Card>
                   {exerciseData?.focusSkill && (
-                    <Alert
-                      type="info"
-                      showIcon
-                      message={`Kỹ năng trọng tâm: ${exerciseData.focusSkill}`}
-                    />
+                    <Alert type="info" showIcon message={`Kỹ năng trọng tâm: ${exerciseData.focusSkill}`} />
                   )}
                   {exerciseData?.description && (
                     <Paragraph className="!mb-0 !text-slate-600">{exerciseData.description}</Paragraph>
@@ -404,9 +433,7 @@ function PronunciationExerciseDetailPage() {
                             )}
                           </Space>
                           {recordingState === "recording" && (
-                            <span className="pronunciation-recording-live">
-                              Đang ghi {recordingTime}s
-                            </span>
+                            <span className="pronunciation-recording-live">Đang ghi {recordingTime}s</span>
                           )}
                           <Text type="secondary">
                             Bạn có thể ghi âm trực tiếp từ trình duyệt hoặc tải lên file audio có sẵn.
@@ -445,7 +472,9 @@ function PronunciationExerciseDetailPage() {
                           <InboxOutlined />
                         </p>
                         <p className="ant-upload-text">Kéo thả hoặc chọn file audio</p>
-                        <p className="ant-upload-hint">Hỗ trợ file ghi âm từ trình duyệt hoặc file upload thủ công.</p>
+                        <p className="ant-upload-hint">
+                          Hỗ trợ file ghi âm từ trình duyệt hoặc file upload thủ công.
+                        </p>
                       </Upload.Dragger>
 
                       {recordedPreviewUrl && (
@@ -471,13 +500,13 @@ function PronunciationExerciseDetailPage() {
                     <Col xs={24} md={8}>
                       <Card bordered={false} className="pronunciation-metric h-full">
                         <Statistic
-                          title="Tiáº¿n Ä‘á»™ cháº¥m"
+                          title="Tiến độ chấm"
                           value={submissions.length ? Math.round((reviewedCount / submissions.length) * 100) : 0}
                           suffix="%"
                           valueStyle={{ color: reviewedCount > 0 ? "#16a34a" : "#0f172a" }}
                         />
                         <Text type="secondary">
-                          {reviewedCount}/{submissions.length} lÆ°á»£t ná»™p Ä‘Ă£ cĂ³ Ä‘iá»ƒm giĂ¡o viĂªn
+                          {reviewedCount}/{submissions.length} lượt nộp đã có điểm giáo viên
                         </Text>
                       </Card>
                     </Col>
@@ -489,20 +518,20 @@ function PronunciationExerciseDetailPage() {
                           suffix="/100"
                           valueStyle={{ color: getScoreColor(averageAutoScore) }}
                         />
-                        <Text type="secondary">Trung bĂ¬nh trĂªn toĂ n bá»™ lÆ°á»£t ná»™p</Text>
+                        <Text type="secondary">Trung bình trên toàn bộ lượt nộp</Text>
                       </Card>
                     </Col>
                     <Col xs={24} md={8}>
                       <Card bordered={false} className="pronunciation-metric h-full">
                         <Statistic
-                          title="Tráº¡ng thĂ¡i hiá»‡n táº¡i"
-                          value={pendingCount > 0 ? "CĂ²n bĂ i chá»" : "ÄĂ£ xá»­ lĂ½"}
+                          title="Trạng thái hiện tại"
+                          value={pendingCount > 0 ? "Còn bài chờ" : "Đã xử lý"}
                           valueStyle={{ fontSize: 24, color: pendingCount > 0 ? "#d97706" : "#16a34a" }}
                         />
                         <Text type="secondary">
                           {pendingCount > 0
-                            ? "NĂªn Æ°u tiĂªn cháº¥m cĂ¡c lÆ°á»£t ná»™p má»›i nháº¥t"
-                            : "Táº¥t cáº£ lÆ°á»£t ná»™p hiá»‡n Ä‘Ă£ Ä‘Æ°á»£c xá»­ lĂ½"}
+                            ? "Nên ưu tiên chấm các lượt nộp mới nhất"
+                            : "Tất cả lượt nộp hiện đã được xử lý"}
                         </Text>
                       </Card>
                     </Col>
@@ -532,11 +561,11 @@ function PronunciationExerciseDetailPage() {
                       <Card bordered={false} className="pronunciation-metric h-full">
                         <Space direction="vertical" size={10}>
                           <Tag color={latestSubmission.reviewStatus === "REVIEWED" ? "green" : "orange"}>
-                            {latestSubmission.reviewStatus === "REVIEWED" ? "Đã giáo viên chấm" : "Đang chờ giáo viên chấm"}
+                            {latestSubmission.reviewStatus === "REVIEWED"
+                              ? "Đã giáo viên chấm"
+                              : "Đang chờ giáo viên chấm"}
                           </Tag>
-                          <Text type="secondary">
-                            Nộp lúc {formatDateTime(latestSubmission.submittedAt)}
-                          </Text>
+                          <Text type="secondary">Nộp lúc {formatDateTime(latestSubmission.submittedAt)}</Text>
                         </Space>
                       </Card>
                     </Col>
@@ -563,7 +592,7 @@ function PronunciationExerciseDetailPage() {
                       showIcon
                       message={
                         latestSubmission.reviewStatus === "REVIEWED"
-                          ? (latestSubmission.teacherFeedback || "Giáo viên đã chấm điểm.")
+                          ? latestSubmission.teacherFeedback || "Giáo viên đã chấm điểm."
                           : "Bài nộp đã được ghi nhận và đang chờ giáo viên chấm."
                       }
                     />
@@ -574,17 +603,19 @@ function PronunciationExerciseDetailPage() {
               <Card
                 title={isStudent ? "Lịch sử nộp bài" : "Danh sách bài nộp"}
                 className="pronunciation-panel !rounded-3xl"
-                extra={!isStudent && (
-                  <Segmented
-                    value={reviewFilter}
-                    onChange={(value) => setReviewFilter(value as "ALL" | "PENDING" | "REVIEWED")}
-                    options={[
-                      { label: `Tất cả (${submissions.length})`, value: "ALL" },
-                      { label: `Chờ chấm (${pendingCount})`, value: "PENDING" },
-                      { label: `Đã chấm (${reviewedCount})`, value: "REVIEWED" },
-                    ]}
-                  />
-                )}
+                extra={
+                  !isStudent && (
+                    <Segmented
+                      value={reviewFilter}
+                      onChange={(value) => setReviewFilter(value as "ALL" | "PENDING" | "REVIEWED")}
+                      options={[
+                        { label: `Tất cả (${submissions.length})`, value: "ALL" },
+                        { label: `Chờ chấm (${pendingCount})`, value: "PENDING" },
+                        { label: `Đã chấm (${reviewedCount})`, value: "REVIEWED" },
+                      ]}
+                    />
+                  )
+                }
               >
                 {groupedSubmissions.length === 0 ? (
                   <Empty description="Chưa có bài nộp nào" />
@@ -602,16 +633,23 @@ function PronunciationExerciseDetailPage() {
                             <Tag color="cyan">{formatDateTime(submission.submittedAt)}</Tag>
                           </Space>
                           <Text strong>
-                            Điểm giáo viên: {submission.reviewStatus === "REVIEWED" ? `${submission.teacherScore}/100` : "Chưa chấm"}
+                            Điểm giáo viên:{" "}
+                            {submission.reviewStatus === "REVIEWED"
+                              ? `${submission.teacherScore}/100`
+                              : "Chưa chấm"}
                           </Text>
-                          <Text type="secondary">Thời lượng: {submission.durationSeconds.toFixed(1)} giây</Text>
+                          <Text type="secondary">
+                            Thời lượng: {submission.durationSeconds.toFixed(1)} giây
+                          </Text>
                           <audio controls src={submission.audioUrl} className="w-full" />
                           {submission.reviewStatus === "PENDING" && (
-                            <Text type="secondary">Điểm tham khảo hệ thống: {submission.autoOverallScore}/100</Text>
+                            <Text type="secondary">
+                              Điểm tham khảo hệ thống: {submission.autoOverallScore}/100
+                            </Text>
                           )}
                           <Text>
                             {submission.reviewStatus === "REVIEWED"
-                              ? (submission.teacherFeedback || "Không có nhận xét bổ sung")
+                              ? submission.teacherFeedback || "Không có nhận xét bổ sung"
                               : "Bài nộp đang chờ giáo viên đánh giá."}
                           </Text>
                         </Space>
@@ -632,7 +670,8 @@ function PronunciationExerciseDetailPage() {
                         dataIndex: "teacherScore",
                         key: "teacherScore",
                         width: 100,
-                        render: (value: number | null, record) => record.reviewStatus === "REVIEWED" ? `${value}/100` : "Chờ chấm",
+                        render: (value: number | null, record) =>
+                          record.reviewStatus === "REVIEWED" ? `${value}/100` : "Chờ chấm",
                       },
                       {
                         title: "Trạng thái",
@@ -664,15 +703,19 @@ function PronunciationExerciseDetailPage() {
                         width: 260,
                         render: (_, record) => <audio controls src={record.audioUrl} />,
                       },
-                      ...(canReview ? [{
-                        title: "Chấm bài",
-                        key: "review",
-                        render: (_: unknown, record: PronunciationSubmission) => (
-                          <Button type="primary" onClick={() => openReviewModal(record)}>
-                            {record.reviewStatus === "REVIEWED" ? "Sửa điểm" : "Chấm điểm"}
-                          </Button>
-                        ),
-                      }] : []),
+                      ...(canReview
+                        ? [
+                            {
+                              title: "Chấm bài",
+                              key: "review",
+                              render: (_: unknown, record: PronunciationSubmission) => (
+                                <Button type="primary" onClick={() => openReviewModal(record)}>
+                                  {record.reviewStatus === "REVIEWED" ? "Sửa điểm" : "Chấm điểm"}
+                                </Button>
+                              ),
+                            },
+                          ]
+                        : []),
                     ]}
                   />
                 )}
@@ -689,7 +732,7 @@ function PronunciationExerciseDetailPage() {
             }}
             onOk={() => void handleReviewSubmit()}
             confirmLoading={reviewSubmitting}
-            okText="Luu diem"
+            okText="Lưu điểm"
           >
             <Space direction="vertical" size={12} className="w-full mb-4">
               <Text>
@@ -706,7 +749,7 @@ function PronunciationExerciseDetailPage() {
                 <InputNumber min={0} max={100} className="w-full" />
               </Form.Item>
               <Form.Item name="teacherFeedback" label="Nhận xét giáo viên">
-                <Input.TextArea rows={4} placeholder="Nhan xet chi tiet cho hoc sinh" />
+                <Input.TextArea rows={4} placeholder="Nhận xét chi tiết cho học sinh" />
               </Form.Item>
             </Form>
           </Modal>
